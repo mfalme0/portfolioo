@@ -21,7 +21,7 @@ function Projects() {
             <ProjectCard
               imgPath={chatify}
               isBlog={false}
-              title="Chatify"
+              title="PerfSuite"
               description="I am currently developing an overclocking and suite for laptops with both Intel and AMD CPUs for in order to make the unleash their full potential and also unlock the power of both the iGPU and dGPUs for the systems"
               ghLink="https://github.com/mfalme0/PerfSuite"
               demoLink="https://github.com/mfalme0/PerfSuite/releases/download/overclock/PerfSuite.7z"
