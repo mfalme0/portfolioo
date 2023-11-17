@@ -47,6 +47,7 @@ function Techstack() {
       </Col>
         <Col xs={4} md={2} className="tech-icons">
         <SiMysql />
+  </Col>
       <Col xs={4} md={2} className="tech-icons">
         <DiMongodb />
       </Col>
