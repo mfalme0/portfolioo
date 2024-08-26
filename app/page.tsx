@@ -14,6 +14,7 @@ import { WorkExperience } from "./components/Mboka";
 import { ProjectsCarousel } from "./components/Projects";
 import { Hero } from "./components/hero";
 import { Header } from "./components/header";
+import { Games } from "./components/games";
 
 export default function Home() {
   const [localTime, setLocalTime] = useState("");
@@ -71,7 +72,7 @@ export default function Home() {
  
       
       {/* Projects Section */}
-      <section className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16 snap-center" id="projects">
+      <section className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16 snap-center justify-center" id="projects">
         <div className="group rounded-lg border border-gray-300 bg-white dark:bg-gray-800 transition-shadow hover:shadow-lg grayscale blur hover:grayscale-0 hover:scale-110 duration-200 hover:blur-0 ">
           <Image
             src={project1}
@@ -128,6 +129,7 @@ export default function Home() {
         </div>
         {/* Add more projects as needed */}
       </section>
+      <Games/>
       <Rejection/>
       <ProgrammingLanguages/>
 
