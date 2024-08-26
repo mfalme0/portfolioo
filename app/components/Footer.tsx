@@ -32,7 +32,7 @@ export default function Footer() {
           <BsDiscord size={40} />
         </a>
       </div>
-      <p className="text-center text-gray-500 dark:text-gray-400">&copy; {new Date().getFullYear()} Your Name. All rights reserved.</p>
+      <p className="text-center text-gray-500 dark:text-gray-400">&copy; {new Date().getFullYear()} Joseph Gitau. All rights reserved.</p>
     </footer>
   );
 }
