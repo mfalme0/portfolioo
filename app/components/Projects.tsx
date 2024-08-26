@@ -47,7 +47,7 @@ export function ProjectsCarousel() {
 
   return (
     <section className="w-full mb-16">
-      <div className="relative w-full h-[60vh] lg:h-[70vh] xl:h-[80vh] bg-gradient-to-r from-cyan-500 to-blue-500">
+      <div className="relative w-full h-[60vh] lg:h-[70vh] xl:h-[80vh] bg-gradient-to-r from-cyan-500 to-blue-500 justify-center">
         <h1>A showcase of projects</h1>
         <Image
           src={projects[currentIndex].image}
