@@ -66,7 +66,7 @@ export default function Home() {
         <WorkExperience />
       </section>
       
-      <section className="w-full max-w-screen overflow-x-hidden" id="projects">
+      <section className=" max-w-screen overflow-x-hidden" id="projects">
         <Projects />
       </section>
 
