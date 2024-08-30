@@ -1,24 +1,21 @@
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
+import profile from '../../Images/Mfalme.jpg';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 0);
     };
 
     window.addEventListener('scroll', handleScroll);
+    
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
   }, []);
 
   const toggleMenu = () => {
@@ -32,9 +29,18 @@ export function Header() {
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          {/* Desktop Menu */}
-          <ul className="hidden md:flex space-x-6 text-lg justify-center w-full">
+        <div className="flex items-center justify-between py-4">
+          {/* Profile Picture on the Left */}
+          <div className="flex items-center space-x-4">
+            <Image
+              src={profile}
+              alt="Profile"
+              className="w-8 h-8 rounded-full"
+            />
+          </div>
+
+          {/* Centered Navigation */}
+          <ul className="hidden md:flex space-x-6 text-lg justify-center flex-1">
             <li>
               <a
                 href="#hero"
@@ -68,6 +74,8 @@ export function Header() {
               </a>
             </li>
           </ul>
+
+
 
           {/* Mobile Menu Icon */}
           <div className="md:hidden">

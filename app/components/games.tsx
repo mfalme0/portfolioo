@@ -1,10 +1,13 @@
 import { SiCounterstrike, SiThefinals } from "react-icons/si";
 import { GiGoose } from "react-icons/gi";
+import Image from "next/image";
+import NFS from "../../Images/nfs.png"
 
 const games = [
   { name: 'Counter Strike', icon: <SiCounterstrike aria-label="Counter Strike" />, rounds: 'Expert' },
   { name: 'The Finals', icon: <SiThefinals aria-label="The Finals" />, rounds: 'Mid' },
   { name: 'Goose Goose Duck', icon: <GiGoose aria-label="Goose Goose Duck" />, rounds: 'Hectic' },
+  { name: 'Need For Speed Unbound', icon: <Image src={NFS} alt="nfs" className="w-auto h-16"/>, round:"medicore" }
 ];
 
 export function Games() {
