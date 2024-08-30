@@ -6,7 +6,8 @@ import { BsSteam, BsLinkedin, BsTwitch, BsTwitterX, BsInstagram, BsDiscord, BsGi
 
 export default function Footer() {
   return (
-    <footer className="mt-16 text-center">
+    <footer className="mt-16 text-center ">
+      
       <p className="text-lg font-semibold mb-4">My Socials</p>
       <div className="flex justify-center flex-wrap gap-8 mb-4">
         {/* Add your links in the href attribute */}

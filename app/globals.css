@@ -36,3 +36,23 @@ body {
     text-wrap: balance;
   }
 }
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background of the scrollbar track */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #282111; /* Color of the scrollbar thumb */
+  border-radius: 10px;
+  border: 3px solid #f1f1f1; /* Adds space around thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #ff6702; /* Color of the thumb on hover */
+}
+

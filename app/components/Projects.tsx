@@ -36,22 +36,21 @@ const projects = [
   },
 ];
 
-
 export function Projects() {
   return (
-    <section className="bg-slate-50 dark:bg-gray-900 py-12">
+    <section className="bg-slate-50 dark:bg-gray-900 p-8">
       <div className="container mx-auto px-8">
         <h1 className="text-3xl font-bold mb-10 text-center text-gray-700 dark:text-gray-200">
           My Projects
         </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
           {projects.map((project) => (
             <a
               key={project.title}
               href={project.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 max-w-xs w-full"
             >
               <Image
                 src={project.image}

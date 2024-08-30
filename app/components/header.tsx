@@ -30,14 +30,7 @@ export function Header() {
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-4">
-          {/* Profile Picture on the Left */}
-          <div className="flex items-center space-x-4">
-            <Image
-              src={profile}
-              alt="Profile"
-              className="w-8 h-8 rounded-full"
-            />
-          </div>
+
 
           {/* Centered Navigation */}
           <ul className="hidden md:flex space-x-6 text-lg justify-center flex-1">
@@ -63,6 +56,14 @@ export function Header() {
                 className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
               >
                 Projects
+              </a>
+            </li>
+            <li>
+              <a
+                href="#techstack"
+                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+              >
+                Techstack
               </a>
             </li>
             <li>
@@ -125,6 +126,17 @@ export function Header() {
                   Projects
                 </a>
               </li>
+
+              <li>
+                <a
+                  href="#techstack"
+                  onClick={toggleMenu}
+                  className="hover:text-gray-400 transition-colors duration-300"
+                >
+                  Techstack
+                </a>
+              </li>
+
               <li>
                 <a
                   href="#contact"
