@@ -11,12 +11,14 @@ import { Games } from "./components/games";
 import Techstack from "./components/Techstack";
 import ProgrammingLanguages from "./components/Languages";
 import Github from "./components/github";
-import { FaArrowAltCircleUp } from "react-icons/fa";
 import AboutMe from "./components/about";
+import Preloader from "./components/preloader";
+import { FaArrowAltCircleUp } from "react-icons/fa";
 
 export default function Home() {
   const [localTime, setLocalTime] = useState("");
   const [showArrow, setShowArrow] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const updateTime = () => {
@@ -49,6 +51,16 @@ export default function Home() {
     document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Simulate loading time
+  useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 2000); // Adjust the duration as needed
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (loading) {
+    return <Preloader />;
+  }
+
   return (
     <main className="flex min-h-screen max-w-full w-screen flex-col items-center justify-between bg-gray-50 dark:bg-gray-900 custom-scrollbar overflow-x-hidden">
       {/* Local Time Display */}
@@ -66,7 +78,7 @@ export default function Home() {
         <WorkExperience />
       </section>
       
-      <section className=" max-w-screen overflow-x-hidden" id="projects">
+      <section className="max-w-screen overflow-x-hidden" id="projects">
         <Projects />
       </section>
 
