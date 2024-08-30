@@ -10,9 +10,9 @@ const languages = [
   { name: 'Ios', icon: <SiIos className="text-4xl text-white" />, proficiency: 'Expert' },
   { name: 'Android', icon: <SiAndroid className="text-4xl text-lime-500" />, proficiency: 'Advanced' },
   { name: 'Linux', icon: <SiLinux className="text-4xl text-black" />, proficiency: 'Advanced' },
-  { name: 'AWS', icon: <FaAws className="text-4xl text-orange-600" />, proficiency: 'Expert' },
+  { name: 'AWS', icon: <FaAws className="text-4xl text-orange-600" />, proficiency: 'intermediate' },
   { name: 'Mongodb', icon: <DiMongodb className="text-4xl text-green-500" />, proficiency: 'Intermediate' },
-  { name: 'Firebase', icon: <RiFirebaseFill className="text-4xl text-amber-400" />, proficiency: 'Intermediate' },
+  { name: 'Firebase', icon: <RiFirebaseFill className="text-4xl text-amber-400" />, proficiency: 'Advanced' },
 
 ];
 export default function Techstack() {
