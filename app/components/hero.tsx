@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import profile from '../../Images/Mfalme.jpg'; // Ensure this path is correct
+import profile from '../../Images/Mfalme.jpg'
 
 export function Hero() {
   const [greeting, setGreeting] = useState('');
@@ -26,27 +26,34 @@ export function Hero() {
 
   return (
     <section
-      className={` w-full relative flex flex-col items-center justify-center h-screen ${gradientClass} text-white p-6 sm:p-12`}
+      className={`w-full h-screen ${gradientClass} flex items-center justify-center text-white relative p-6 sm:p-12`}
     >
-      <div className="relative flex flex-col items-center bg-white bg-opacity-20 backdrop-blur-md rounded-lg p-8 sm:p-10 lg:p-12 shadow-lg">
-        <Image
+      <div className="absolute top-6 left-6 sm:top-10 sm:left-10 z-10">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-wide neon-text drop-shadow-lg">
+          {greeting}
+        </h1>
+       
+      </div>
+      <header className="w-full max-w-5xl flex flex-col items-center text-center mb-16 p-5">
+        <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 ">Joseph Gitau</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">Software Engineer | Gamer | Nerd</p>
+        <div>
+              <Image
           src={profile}
           alt="Your Profile Picture"
-          className="rounded-full grayscale blur hover:blur-0 hover:saturate-100 hover:grayscale-0 hover:scale-105 transition-transform duration-300"
+          className="rounded-full grayscale blur hover:blur-0 hover:saturate-100 hover:grayscale-0 hover:scale-110 transition-transform duration-200"
           width={150}
           height={150}
           priority
         />
-        <p className="mt-6 text-xl sm:text-2xl md:text-3xl text-gray-700 dark:text-gray-200 max-w-2xl">
-          I am a mid developer who will absolutely destroy you in{' '}
-          <strong className="text-glitch">Counter-Strike</strong> or any other
-          shooter and am an avid <strong className="text-glitch">anime</strong> enjoyer.
+        </div>
+    
+      </header>
+      <div className="relative flex flex-col items-center bg-opacity-30 backdrop-blur-md rounded-lg p-8 sm:p-10 lg:p-12 shadow-xl z-20">
+        <p className="text-2xl sm:text-3xl md:text-4xl text-gray-100 neon-text max-w-2xl tracking-wide text-center">
+        Welcome to my digital portfolio—a space where creativity meets technology, and innovation comes to life.
+          
         </p>
-      </div>
-      <div className="absolute inset-0 flex items-center justify-center text-center">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-wide drop-shadow-lg">
-          {greeting}
-        </h1>
       </div>
     </section>
   );

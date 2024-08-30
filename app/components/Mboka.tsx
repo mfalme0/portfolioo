@@ -1,5 +1,6 @@
 import React from 'react';
-import { BsBriefcase, BsCodeSlash, BsFillLaptopFill } from "react-icons/bs";
+import {  BsCodeSlash } from "react-icons/bs";
+import { PiNetwork } from "react-icons/pi";
 import { MdHowToVote } from "react-icons/md";
 
 const experiences = [
@@ -8,7 +9,7 @@ const experiences = [
     role: 'Network Associate',
     duration: 'Apr 2021 - Aug 2021',
     description: 'I worked as technical support and as a network associate until my enrollment into the university.',
-    icon: <BsFillLaptopFill />,
+    icon: <PiNetwork/>,
   },
   {
     company: 'Independent Electoral and Boundaries Commission',

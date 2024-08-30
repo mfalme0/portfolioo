@@ -22,7 +22,7 @@ const languages = [
 export default function ProgrammingLanguages() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center  text-gray-500">Languages I don`t suck at</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center  text-gray-500">Languages I am familiar with</h1>
       <div className="flex flex-wrap justify-center gap-6">
         {languages.map((lang) => (
           <div key={lang.name} className="relative bg-gray-700 p-6 rounded-lg shadow-lg max-w-xs w-full group">

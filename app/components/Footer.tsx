@@ -22,7 +22,7 @@ export default function Footer() {
         <a href="https://steamcommunity.com/profiles/76561199234397892" target="_blank" rel="noopener noreferrer" className="hover:scale-125 transition-transform duration-200">
           <BsSteam size={40} />
         </a>
-        <a href="https://x.com/joemfalme001" target="_blank" rel="noopener noreferrer" className="hover:scale-125 transition-transform duration-200">
+        <a href="https://x.com/joemfalme001" target="_blank" rel="noopener noreferrer" className="hover:scale-125 transition-transform duration-200 hover:text-glitch">
           <BsTwitterX size={40} />
         </a>
         <a href="https://www.instagram.com/mfalme.01/" target="_blank" rel="noopener noreferrer" className="hover:scale-125 transition-transform duration-200">
