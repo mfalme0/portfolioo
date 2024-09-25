@@ -81,7 +81,7 @@ export default function Home() {
       <section className="max-w-screen overflow-x-hidden" id="projects">
         <Projects />
       </section>
-
+  
       <section className="w-full max-w-screen overflow-x-hidden p-24" id="techstack">
         <Techstack />
         <ProgrammingLanguages />

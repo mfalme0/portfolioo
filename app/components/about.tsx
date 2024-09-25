@@ -25,7 +25,7 @@ export default function AboutMe() {
             About Me
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-            Hi, I`m [Your Name], a passionate software developer with experience in building modern web and mobile applications. I love exploring new technologies and solving challenging problems. My goal is to create impactful solutions that improve people`s lives.
+            Hi, I`m Joseph Gitau, a passionate software developer with experience in building modern web and mobile applications. I love exploring new technologies and solving challenging problems. My goal is to create impactful solutions that improve people`s lives.
           </p>
 
           {/* Key Skills */}

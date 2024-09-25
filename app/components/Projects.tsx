@@ -25,7 +25,7 @@ const projects = [
     description: 'A vehicle management system.',
     image: project3,
     alt: 'Project 3',
-    link :''
+    link :'https://github.com/mfalme0/ndai.com'
   },
   {
     title: 'Archie',
