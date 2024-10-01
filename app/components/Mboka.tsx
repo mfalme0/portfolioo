@@ -2,6 +2,8 @@ import React from 'react';
 import {  BsCodeSlash } from "react-icons/bs";
 import { PiNetwork } from "react-icons/pi";
 import { MdHowToVote } from "react-icons/md";
+import { GrCloudComputer } from "react-icons/gr";
+import { IconBase } from 'react-icons';
 
 const experiences = [
   {
@@ -25,6 +27,13 @@ const experiences = [
     description: 'I was tasked with creating and maintenance of internal tools for various departments within the organization and learnt about various frameworks and clouds services',
     icon: <BsCodeSlash />,
   },
+  {
+    company: 'Gituamba Girls Secondary School',
+    role: 'IT Consultant Volunteer',
+    duration: 'Sep 2024- Present',
+    description: 'I manage the network and cyber security infrasturcture of the institution as well as setup any new devices as a service to the community.',
+    icon:  <GrCloudComputer/>,
+  }
 ];
 
 export function WorkExperience() {

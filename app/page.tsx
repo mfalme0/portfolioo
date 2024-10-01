@@ -14,6 +14,7 @@ import Github from "./components/github";
 import AboutMe from "./components/about";
 import Preloader from "./components/preloader";
 import { FaArrowAltCircleUp } from "react-icons/fa";
+import AuraSyncComponent from "./components/aura";
 
 export default function Home() {
   const [localTime, setLocalTime] = useState("");
@@ -93,7 +94,7 @@ export default function Home() {
           <Github />  
         </div>
       </section>
-      
+   
       <section className="w-full max-w-screen overflow-x-hidden" id="contact">
         <Footer />
       </section>
