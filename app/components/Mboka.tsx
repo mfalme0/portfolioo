@@ -29,7 +29,7 @@ const experiences = [
   },
   {
     company: 'Gituamba Girls Secondary School',
-    role: 'IT Consultant Volunteer',
+    role: 'Volunteer IT Consultant ',
     duration: 'Sep 2024- Present',
     description: 'I manage the network and cyber security infrasturcture of the institution as well as setup any new devices as a service to the community.',
     icon:  <GrCloudComputer/>,
