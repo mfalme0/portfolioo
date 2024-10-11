@@ -1,5 +1,5 @@
 
-import { SiWindows10, SiWindows11, SiMacos,SiAndroid,SiIos, SiLinux } from 'react-icons/si';
+import { SiWindows10, SiWindows11, SiMacos,SiAndroid,SiIos, SiLinux, SiProxmox } from 'react-icons/si';
 import { FaAws, FaDocker } from 'react-icons/fa';
 import { DiMongodb } from 'react-icons/di';
 import { RiFirebaseFill } from 'react-icons/ri';
@@ -14,6 +14,7 @@ const languages = [
   { name: 'Mongodb', icon: <DiMongodb className="text-4xl text-green-500" />, proficiency: 'Intermediate' },
   { name: 'Firebase', icon: <RiFirebaseFill className="text-4xl text-amber-400" />, proficiency: 'Advanced' },
   {name: 'Docker', icon: <FaDocker className="text-4xl text-blue-600" />, proficiency: "advance"},
+  {name: 'Proxmox', icon: <SiProxmox className="text-4xl text-orange-600" />, proficiency: "advance"},
 
 ];
 export default function Techstack() {
