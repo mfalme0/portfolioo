@@ -28,7 +28,7 @@ const peripherals = [
   {
     id: 2,
     name: 'KZ EDX Ultra IEM',
-    image: iem, // Missing image placeholder
+    image: iem,
     specs: [
       'Driver: 10mm Dual Magnetic Circuit Dynamic',
       'Frequency Range: 20Hz-40kHz',
@@ -42,7 +42,7 @@ const peripherals = [
   {
     id: 3,
     name: 'Logitech G935 Gaming Headset',
-    image: g935, // Missing image placeholder
+    image: g935,
     specs: [
       '50mm Pro-G Drivers',
       '7.1 Surround Sound',
@@ -83,17 +83,19 @@ const peripherals = [
   },
 ];
 
-const Peripherals = () => {
-  // Category Icons based on the category type
-  const categoryIcons = {
-    Keyboards: <FaRegKeyboard className="text-3xl" />,
-    Audio: <MdOutlineSpeakerGroup className="text-3xl" />,
-    Mice: <BsFillMouseFill className="text-3xl" />,
-  };
+// Define a type for the category icons
+const categoryIcons: Record<string, JSX.Element> = {
+  Keyboards: <FaRegKeyboard className="text-3xl" />,
+  Audio: <MdOutlineSpeakerGroup className="text-3xl" />,
+  Mice: <BsFillMouseFill className="text-3xl" />,
+};
+
+const Peripherals: React.FC = () => {
+  const categories = Object.keys(categoryIcons) as Array<keyof typeof categoryIcons>;
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      {['Keyboards', 'Audio', 'Mice'].map((category) => (
+      {categories.map((category) => (
         <div key={category}>
           <div className="flex items-center space-x-2 mb-4">
             {categoryIcons[category]}
