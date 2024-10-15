@@ -11,7 +11,7 @@ const projects = [
     description: 'This is a farming AI assistant with an inbuilt chat bot.',
     image: project1,
     alt: 'Project 1',
-    link :''
+    link :'https://betterfarm.vercel.app/'
   },
   {
     title: 'PerfSuite',
