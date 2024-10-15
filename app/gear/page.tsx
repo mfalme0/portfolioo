@@ -11,7 +11,7 @@ import Peripherals from "../components/gaminggear";
 import { Games } from "../components/games";
 import NowPlaying from "../components/nowplaying";
 import { CiCircleChevUp } from "react-icons/ci";
-import Preloader from "../components/preloader";
+import Preloader from "../components/gamingloader";
 
 export default function Gear() {
   const [showArrow, setShowArrow] = useState(false);
@@ -47,7 +47,7 @@ if (loading) {
 }
 
 return(
-    <main className="bg-gradient-to-r from-blue-500 to-purple-700 text-white py-16 px-6 lg:px-20">
+    <main className="bg-gradient-to-r from-blue-600 to-pink-500 text-white py-16 px-6 lg:px-20">
       <Header/>
      
       

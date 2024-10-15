@@ -20,7 +20,7 @@ export function Games() {
         {games.map((game) => (
           <div
             key={game.name}
-            className="relative bg-gray-700 dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-xs w-full group hover:shadow-teal-600 hover:scale-105 transition-transform duration-200"
+            className="relative bg-purple-500 dark:bg-purple-800 p-6 rounded-lg shadow-lg max-w-xs w-full group hover:shadow-pink-600 hover:scale-105 transition-transform duration-200"
           >
             <div className="flex justify-center mb-4 text-white text-4xl">
               {game.icon}
