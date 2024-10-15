@@ -53,7 +53,7 @@ export default function PerformanceSpecs() {
             {/* Circle with RTX Info */}
             <div className="w-36 h-36 mx-auto border-4 border-pink-500  rounded-full flex flex-col items-center justify-center mb-6">
               <div className="text-top text-xl">RTX™</div>
-              <div className="text-bottom text-2xl font-bold">3070</div>
+              <div className="text-bottom text-2xl font-bold">3050</div>
             </div>
             
             {/* GPU Label */}
