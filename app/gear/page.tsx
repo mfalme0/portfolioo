@@ -1,0 +1,79 @@
+"use client"; // Add this line at the very top
+
+import { useState, useEffect } from "react";
+import Footer from "..//components/Footer";
+import { FaArrowAltCircleUp } from "react-icons/fa";
+import MyRig from "../components/pc";
+import PerformanceSpecs from "../components/pc2";
+import { Header } from "../components/gamingheader";
+import ModelOComponent from "../components/model";
+import Peripherals from "../components/gaminggear";
+import { Games } from "../components/games";
+import NowPlaying from "../components/nowplaying";
+import { CiCircleChevUp } from "react-icons/ci";
+import Preloader from "../components/preloader";
+
+export default function Gear() {
+  const [showArrow, setShowArrow] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+const scorllTorig = () => {
+    document.getElementById("rig")?.scrollIntoView({behavior:"smooth"})
+
+}
+useEffect(() => {
+  const handleScroll = () => {
+    const heroSection = document.getElementById("rig");
+    const scrollPosition = window.scrollY;
+    if (heroSection && scrollPosition > heroSection.offsetHeight) {
+      setShowArrow(true);
+    } else {
+      setShowArrow(false);
+    }
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
+useEffect(() => {
+  const timeout = setTimeout(() => setLoading(false), 2000); // Adjust the duration as needed
+  return () => clearTimeout(timeout);
+}, []);
+
+if (loading) {
+  return <Preloader />;
+}
+
+return(
+    <main className="bg-gradient-to-r from-blue-500 to-purple-700 text-white py-16 px-6 lg:px-20">
+      <Header/>
+     
+      
+    <section className="w-full max-w-screen overflow-x-hidden" id="rig">
+     
+    <PerformanceSpecs/>
+
+  </section>
+  <section  id="gear">
+    <Peripherals/>
+  </section>
+  <section id='games'>
+    <Games/>
+  </section>
+
+  
+  <Footer/>
+  {showArrow && (
+        <div
+          onClick={scorllTorig}
+          className="fixed bottom-4 right-4 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-300"
+        >
+          <CiCircleChevUp size={40} />
+        </div>
+      )}
+  </main>
+
+)
+}

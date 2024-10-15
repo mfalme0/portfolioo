@@ -15,6 +15,7 @@ import AboutMe from "./components/about";
 import Preloader from "./components/preloader";
 import { FaArrowAltCircleUp } from "react-icons/fa";
 import AuraSyncComponent from "./components/aura";
+import { CiCircleChevUp } from "react-icons/ci";
 
 export default function Home() {
   const [localTime, setLocalTime] = useState("");
@@ -105,7 +106,7 @@ export default function Home() {
           onClick={scrollToHero}
           className="fixed bottom-4 right-4 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-300"
         >
-          <FaArrowAltCircleUp size={40} />
+          <CiCircleChevUp size={40} />
         </div>
       )}
     </main>

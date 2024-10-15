@@ -12,7 +12,7 @@ const games = [
 
 export function Games() {
   return (
-    <div className="bg-slate-50 dark:bg-gray-900 p-8 w-full">
+    <div >
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-700 dark:text-gray-200">
         Games I Play
       </h1>
