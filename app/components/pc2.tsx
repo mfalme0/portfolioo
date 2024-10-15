@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import front from '../../Images/rog_front.png';
+import front from '../../Images/g513.png';
 
 export default function PerformanceSpecs() {
   return (
@@ -19,8 +19,8 @@ export default function PerformanceSpecs() {
               src={front}
               alt="My Rig"
               layout="responsive"
-              width={400}
-              height={400}
+              width={600}
+              height={600}
               className="object-cover transition-all duration-1000 ease-in-out"
             />
           </div>

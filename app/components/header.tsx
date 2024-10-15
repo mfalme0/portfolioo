@@ -74,6 +74,14 @@ export function Header() {
                 Contact
               </a>
             </li>
+            <li>
+              <a
+                href="/gear"
+                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+              >
+                My Gear
+              </a>
+            </li>
           </ul>
 
 
@@ -144,6 +152,16 @@ export function Header() {
                   className="hover:text-gray-400 transition-colors duration-300"
                 >
                   Contact
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="/gear"
+                  onClick={toggleMenu}
+                  className="hover:text-gray-400 transition-colors duration-300"
+                >
+                  My Gear
                 </a>
               </li>
             </ul>

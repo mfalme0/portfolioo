@@ -34,6 +34,14 @@ export function Header() {
 
           {/* Centered Navigation */}
           <ul className="hidden md:flex space-x-6 text-lg justify-center flex-1">
+          <li>
+              <a
+                href="/"
+                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+              >
+                Home
+              </a>
+            </li>
             <li>
               <a
                 href="#rig"
@@ -109,6 +117,15 @@ export function Header() {
                   className="hover:text-gray-400 transition-colors duration-300"
                 >
                   games
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/"
+                  onClick={toggleMenu}
+                  className="hover:text-gray-400 transition-colors duration-300"
+                >
+                  Home
                 </a>
               </li>
 
