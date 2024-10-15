@@ -68,7 +68,7 @@ return(
   {showArrow && (
         <div
           onClick={scorllTorig}
-          className="fixed bottom-4 right-4 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-300"
+          className="fixed bottom-4 right-4 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-gray-100 transition-colors duration-300"
         >
           <CiCircleChevUp size={40} />
         </div>

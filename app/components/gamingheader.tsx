@@ -58,22 +58,7 @@ export function Header() {
                 Games
               </a>
             </li>
-            <li>
-              <a
-                href="#techstack"
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
-              >
-                Techstack
-              </a>
-            </li>
-            <li>
-              <a
-                href="#contact"
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
-              >
-                Contact
-              </a>
-            </li>
+
           </ul>
 
 
@@ -127,25 +112,7 @@ export function Header() {
                 </a>
               </li>
 
-              <li>
-                <a
-                  href="#techstack"
-                  onClick={toggleMenu}
-                  className="hover:text-gray-400 transition-colors duration-300"
-                >
-                  Techstack
-                </a>
-              </li>
 
-              <li>
-                <a
-                  href="#contact"
-                  onClick={toggleMenu}
-                  className="hover:text-gray-400 transition-colors duration-300"
-                >
-                  Contact
-                </a>
-              </li>
             </ul>
           </div>
         )}
