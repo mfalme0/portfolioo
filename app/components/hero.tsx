@@ -58,7 +58,7 @@ export function Hero() {
         </p>
       </div>
       <div className="absolute bottom-4 w-full flex justify-center">
-        <a href="#experience" className="flex items-center">
+        <a href="#about" className="flex items-center">
           <FaArrowDown className="animate-bounce text-white text-4xl hover:text-slate-700" />
         </a>
       </div>
