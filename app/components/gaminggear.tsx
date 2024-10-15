@@ -50,7 +50,7 @@ const peripherals = [
       'Lightsync RGB',
     ],
     category: 'Audio',
-    link: 'https://www.example.com/logitech-g935',
+    link: 'https://anisumakenya.co.ke/product/logitech-g935-wireless-7-1-surround-sound-lightsync-gaming-headset/',
     imagePosition: 'left',
   },
   {
@@ -64,7 +64,7 @@ const peripherals = [
       'RGB Lighting',
     ],
     category: 'Mice',
-    link: 'https://www.example.com/glorious-model-o',
+    link: 'https://www.ubuy.ke/en/product/LKBLS6YS-glorious-model-o-gaming-mouse-matte-white-go-white?',
     imagePosition: 'right',
   },
   {
