@@ -39,7 +39,7 @@ export function Hero() {
           Joseph Gitau
         </h1>
         <p className="text-sm sm:text-lg text-gray-600 dark:text-gray-300 mt-2">
-          Software Engineer | Gamer | Nerd
+          Software Engineer | Gamer
         </p>
         <div className="mt-4 sm:mt-6">
           <Image
