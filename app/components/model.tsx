@@ -34,8 +34,8 @@ const GamingLaptopPromo = () => {
             </h2>
             <p className="text-lg mb-6">
               The new Strix series packs serious gaming power into a more
-              portable chassis. For 15" models, the footprint is 7% smaller
-              than the previous generation, while 17" versions are 5%
+              portable chassis. For 15 inch models, the footprint is 7% smaller
+              than the previous generation, while 17 inch versions are 5%
               smaller. The trim and streamlined chassis makes it easier than
               ever to jump in-game anywhere. It also enables an 85%
               screen-to-body ratio with superslim bezels that make
