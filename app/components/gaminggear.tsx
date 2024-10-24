@@ -8,6 +8,8 @@ import iem from '@/Images/iem.webp';
 import modelo from '../../Images/model01.jpg';
 import sc660 from '@/Images/aula.png';
 import s2002 from '@/Images/s2022.jpg';
+import arctis from '@/Images/att.jpg'
+import hyperx from '@/Images/hyperx.jpg'
 
 // Peripherals Data
 const peripherals = [
@@ -81,6 +83,34 @@ const peripherals = [
     link: 'https://esgaming.co.ke/shop/aula-sc660-transparent-wireless-gaming-mouse-with-led/0',
     imagePosition: 'left',
   },
+  {
+    id: 6,
+    name: 'SteelSeries Arctis 5',
+    image: arctis,
+    specs: [
+      'Speaker Drivers: 40mm Neodymium Drivers',
+      'Hi-Res Capable Speaker',
+      'DTS Headphone:X v2.0 Surround Sound',
+      'Wireless Dual Battery System',
+    ],
+    category: 'Audio',
+    link: 'https://www.whizz.co.ke/product/3385842/steelseries-arctis-5-rgb-illuminated-gaming-headset-with-dts-headphone-x-v2-0-surround-for-pc-and-playstation-4-black/',
+    imagePosition: 'right',
+  },
+  {
+    id: 7,
+    name: 'HyperX Large Square Mouse Pad',
+    image: hyperx, // Add image if available
+    specs: [
+      'Material: Cloth surface',
+      'Dimensions: 450mm x 400mm',
+      'Anti-fray stitched edges',
+      'Non-slip rubber base',
+    ],
+    category: 'Mousepad',
+    link: 'https://techbuyz.co.ke/product/hyperx-fury-s-pro-gaming-mouse-padoptimized-for-precision-stitched-anti-fray-edges-x-large-900x420x4mm/',
+    imagePosition: 'left',
+  },
 ];
 
 // Define a type for the category icons
@@ -137,7 +167,7 @@ const Peripherals: React.FC = () => {
                     </ul>
                     <a
                       href={peripheral.link}
-                      className="inline-block bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                      className="inline-block bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-500"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

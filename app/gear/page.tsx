@@ -12,6 +12,7 @@ import { Games } from "../components/games";
 import NowPlaying from "../components/nowplaying";
 import { CiCircleChevUp } from "react-icons/ci";
 import Preloader from "../components/gamingloader";
+import { FaChevronCircleUp } from "react-icons/fa";
 
 export default function Gear() {
   const [showArrow, setShowArrow] = useState(false);
@@ -68,9 +69,9 @@ return(
   {showArrow && (
         <div
           onClick={scorllTorig}
-          className="fixed bottom-4 right-4 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-gray-100 transition-colors duration-300"
+          className="fixed bottom-4 right-4 cursor-pointer text-gray-700 dark:text-gray-300 hover:animate-pulse hover:scale-110 hover:text-pink-500 dark:hover:text-blue-500 transition-colors duration-300"
         >
-          <CiCircleChevUp size={40} />
+          <FaChevronCircleUp size={40} />
         </div>
       )}
   </main>
