@@ -19,9 +19,8 @@ export default function PerformanceSpecs() {
               src={front}
               alt="My Rig"
               layout="responsive"
-              width={600}
-              height={600}
-              className="object-cover transition-all duration-1000 ease-in-out"
+            className='h-11 w-auto'
+              
             />
           </div>
         </div>
