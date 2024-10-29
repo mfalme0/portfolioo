@@ -2,6 +2,9 @@
 
 import React from "react";
 import { BsSteam, BsLinkedin, BsTwitch, BsTwitterX, BsInstagram, BsDiscord, BsGithub } from "react-icons/bs";
+import { FaHome } from "react-icons/fa";
+import { FaGear } from "react-icons/fa6";
+import { MdFavorite } from "react-icons/md";
 
 
 export default function Footer() {
@@ -31,6 +34,18 @@ export default function Footer() {
         </a>
         <a href="https://discord.gg/rHF5c4mCYS" target="_blank" rel="noopener noreferrer" className="hover:scale-125 transition-transform duration-200 hover:text-indigo-500">
           <BsDiscord size={40} />
+        </a>
+      </div>
+      <p className="text-lg font-semibold mb-4">Quick Links</p>
+      <div className="flex justify-center flex-wrap gap-8 mb-4">
+        <a href="/" className="hover:scale-125 transition-transform duration-300 hover:text-cyan-600">
+        <FaHome />
+        </a>
+        <a href="/gear" className="hover:scale-125 transition-transform duration-300 hover:text-purple-600">
+        <FaGear />
+        </a>
+        <a href="/favourites" className="hover:scale-125 transition-transform duration-300 hover:text-slate-600">
+        <MdFavorite />
         </a>
       </div>
       <p className="text-center text-gray-500 dark:text-gray-400">&copy; {new Date().getFullYear()} Joseph Gitau. All rights reserved.</p>
