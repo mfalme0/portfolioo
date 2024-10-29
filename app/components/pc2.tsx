@@ -82,7 +82,7 @@ export default function PerformanceSpecs() {
         {/* SSD Section */}
         <div><p className='font-semibold text-base'>up to 16TB</p>
           <div className="w-36 h-36 mx-auto border-4 border-pink-500 rounded-full flex items-center justify-center mb-6">
-            <span className="text-2xl font-bold">1.5TB</span>
+            <span className="text-2xl font-bold">4.5TB</span>
           </div>
           <p className="text-base">SSD</p>
         </div>

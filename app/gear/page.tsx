@@ -9,7 +9,6 @@ import { Header } from "../components/gamingheader";
 import ModelOComponent from "../components/model";
 import Peripherals from "../components/gaminggear";
 import { Games } from "../components/games";
-import NowPlaying from "../components/nowplaying";
 import { CiCircleChevUp } from "react-icons/ci";
 import Preloader from "../components/gamingloader";
 import { FaChevronCircleUp } from "react-icons/fa";
