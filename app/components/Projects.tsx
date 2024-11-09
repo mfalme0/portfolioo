@@ -31,8 +31,8 @@ const projects = [
     title: 'Archie',
     description: 'A file archival and retrieval system.',
     image: project4,
-    alt: 'https://github.com/mfalme0/Archiewebapp',
-    link :''
+    alt: 'archie',
+    link :'https://github.com/mfalme0/Archiewebapp'
   },
 ];
 
