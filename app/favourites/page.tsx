@@ -7,7 +7,7 @@ import Footer from "../components/Footer"
 import { Games } from "../components/games";
 import { FaChevronCircleUp } from "react-icons/fa";
 import { Header } from "../components/favesheader";
-import SteamFriends from "../components/thefam";
+
 
 export default function Goodshit() {
     const [loading, setLoading] = useState(true);
