@@ -7,6 +7,7 @@ import Footer from "../components/Footer"
 import { Games } from "../components/games";
 import { FaChevronCircleUp } from "react-icons/fa";
 import { Header } from "../components/favesheader";
+import SteamFriends from "../components/thefam";
 
 export default function Goodshit() {
     const [loading, setLoading] = useState(true);
@@ -22,6 +23,7 @@ export default function Goodshit() {
     return(
         <main className="w-max-screen h-full bg-gradient-to-r from-cyan-600 to-slate-500 text-white py-16 px-6 lg:px-20">
             <Header/>
+  
             <section>
                 <Myshit/>
             </section>

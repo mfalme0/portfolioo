@@ -47,7 +47,7 @@ if (loading) {
 }
 
 return(
-    <main className="bg-gradient-to-r from-blue-600 to-pink-500 text-white py-16 px-6 lg:px-20">
+    <main className="bg-gradient-to-r from-slate-600 to-gray-500 text-white py-16 px-6 lg:px-20">
       <Header/>
      
       
