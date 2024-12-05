@@ -84,13 +84,13 @@ export default function Home() {
         <Projects />
       </section>
   
-      <section className="w-full max-w-screen overflow-x-hidden p-24" id="techstack">
+      <section className=" max-w-screen overflow-x-hidden p-24" id="techstack">
         <Techstack />
         <ProgrammingLanguages />
       </section>
 
       {/* GitHub Section with Horizontal Scroll */}
-      <section className="w-full max-w-screen overflow-x-auto" id="github">
+      <section className=" max-w-screen overflow-x-auto" id="github">
         <div className="min-w-[1200px]"> {/* Adjust the min-width as needed */}
           <Github />  
         </div>

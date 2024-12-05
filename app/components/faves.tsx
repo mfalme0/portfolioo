@@ -2,11 +2,22 @@ import { FaSpotify, FaGamepad, FaTv, FaFilm, FaTwitch } from "react-icons/fa";
 import { SiCounterstrike } from "react-icons/si";
 import { GiGoose } from "react-icons/gi";
 import gkmc from '@/Images/gkmc.jpg';
-import tybw from '@/Images/Bleach-anime.png';
+import tybw from '@/Images/tybw.jpg';
 import inter from '@/Images/landscape.jpg';
 import Image from "next/image";
 import fazar from '@/Images/fazar.png';
 import jay from '@/Images/jay.png';
+import gnx from '@/Images/gnx.jpg'
+import tdoss from '@/Images/tdoss.jpg'
+import supes from '@/Images/supes.png'
+import silo from '@/Images/silo.jpg'
+import akira from '@/Images/akira.jpg'
+import bl from '@/Images/bl.jpg'
+import jack from '@/Images/jack.jpg'
+import congito from '@/Images/congito.jpg'
+import titans from '@/Images/titans.jpg'
+import tdk from '@/Images/tdk.jpg'
+
 
 interface MyFaves {
   title: string;
@@ -66,6 +77,76 @@ const goodshit: MyFaves[] = [
     category: 'Streamer',
     url: 'https://twitch.tv/jaminjayz',
   },
+  {
+    title: 'GNX',
+    artistOrStudio: 'Kendrick Lamar',
+    icon: <Image src={gnx} alt="gnx" className="w-auto " />,
+    category: 'Album',
+    url: 'https://open.spotify.com/album/0hvT3yIEysuuvkK73vgdcW?si=700c43a896314437',
+  },
+  {
+    title: 'The Death of Slim Shady (Coup de Grâce)',
+    artistOrStudio: 'Eminem',
+    icon: <Image src={tdoss} alt="tdoss" className="w-auto " />,
+    category: 'Album',
+    url: 'https://open.spotify.com/album/3kjHLu1pL7tdY88GFwEkl6?si=1bf0d549952540f1',
+  },
+  {
+    title: 'SuperMan Unbound',
+    artistOrStudio: 'DC Comics',
+    icon: <Image src={supes} alt="superman" className="w-auto " />,
+    category: 'Movie',
+    url: 'https://www.max.com/si/en/movies/super-man-unbound/aa5b9295-8f9c-44f5-809b-3f2b84badfbf',
+  },
+  {
+    title: 'Silo',
+    artistOrStudio: 'Apple',
+    icon: <Image src={silo} alt="silo" className="w-auto " />,
+    category: 'TV Show',
+    url: 'https://www.apple.com/tv/',
+  },
+{
+  title: 'Akira',
+  artistOrStudio: 'Katsuhiro Otomo',
+  icon: <Image src={akira} alt="akira" className="w-auto " />,
+  category: 'Movie',
+  url: 'https://www.bytowne.ca/movies/drawn-in-akira/',
+},
+{
+  title: 'Black Lagoon',
+  artistOrStudio: 'Studio Ghibli',
+  icon: <Image src={bl} alt="black lagoon" className="w-auto " />,
+  category: 'TV Show',
+  url: 'https://www.crunchyroll.com/series/GYW4D0M86/black-lagoon?',
+},
+{
+  title: 'Samurai Jack',
+  artistOrStudio: 'Genndy Tartakovsky',
+  icon: <Image src={jack} alt="samurai jack" className="w-auto " />,
+  category: 'TV Show',
+  url: 'https://www.adultswim.com/videos/samurai-jack',
+},
+{
+  title: 'Inside Job',
+  artistOrStudio: 'Netflix',
+  icon: <Image src={congito} alt="inside job" className="w-auto " />,
+  category: 'TV Show',
+  url: 'https://www.netflix.com/title/80995819',
+},
+{
+  title: 'Teen Titans: Trouble in Tokyo',
+  artistOrStudio: 'Warner Bros',
+  icon: <Image src={titans} alt="teen titans" className="w-auto " />,
+  category: 'Movie',
+  url: 'https://www.max.com/si/en/movies/teen-titans-trouble-in-tokyo/aa5b9295-8f9c-44f5-809b-3f2b84badfbf',
+},
+{
+  title: 'The Dark Knight Rises',
+  artistOrStudio: 'Warner Bros',
+  icon: <Image src={tdk} alt="dark knight" className="w-auto " />,
+  category: 'Movie',
+  url: 'https://www.youtube.com/watch?v=g8evyE9TuYk',
+},
 ];
 
 const getcatanimations = (category: string) => {
