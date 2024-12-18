@@ -5,6 +5,7 @@ import { BsSteam, BsLinkedin, BsTwitch, BsTwitterX, BsInstagram, BsDiscord, BsGi
 import { FaHome } from "react-icons/fa";
 import { FaGear } from "react-icons/fa6";
 import { MdFavorite } from "react-icons/md";
+import {IoIosBusiness } from "react-icons/io"
 
 
 export default function Footer() {
@@ -46,6 +47,9 @@ export default function Footer() {
         </a>
         <a href="/favourites" className="hover:scale-125 transition-transform duration-300 hover:text-slate-600">
         <MdFavorite />
+        </a>
+        <a href="https://gasaki.vercel.app" className="hover scale-125 transition-transform duration-300 hover:text-cyan-600">
+        <IoIosBusiness />
         </a>
       </div>
       <p className="text-center text-gray-500 dark:text-gray-400">&copy; {new Date().getFullYear()} Joseph Gitau. All rights reserved.</p>
