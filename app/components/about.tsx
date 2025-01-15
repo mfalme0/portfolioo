@@ -34,11 +34,12 @@ export default function AboutMe() {
               Key Skills
             </h2>
             <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-              <li className="mb-2">React & Next.js</li>
-              <li className="mb-2">JavaScript & TypeScript</li>
+              <li className="mb-2">C#, C++, Python, Kotlin,JavaScript & TypeScript </li>
+              <li className="mb-2">Nextjs, Reactjs, Vuejs</li>
               <li className="mb-2">Tailwind CSS & Styled Components</li>
               <li className="mb-2">Node.js & Express</li>
               <li className="mb-2">Database Management (SQL & NoSQL)</li>
+              <li className="mb-2">Proxmox, Docker </li>
               <li className="mb-2">APIs & Web Services</li>
             </ul>
           </div>

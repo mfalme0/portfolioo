@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
-import profile from '../../Images/Mfalme.jpg';
+
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -74,7 +74,7 @@ export function Header() {
                 Contact
               </a>
             </li>
-
+          </ul>  
 
 
 
