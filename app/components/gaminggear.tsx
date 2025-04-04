@@ -10,6 +10,8 @@ import sc660 from '@/Images/aula.png';
 import s2002 from '@/Images/s2022.jpg';
 import arctis from '@/Images/att.jpg'
 import hyperx from '@/Images/hyperx.jpg'
+import targ from '@/Images/targ.webp'
+import { PiMonitorFill } from "react-icons/pi";
 
 // Peripherals Data
 const peripherals = [
@@ -107,17 +109,34 @@ const peripherals = [
       'Anti-fray stitched edges',
       'Non-slip rubber base',
     ],
-    category: 'Mousepad',
+    category: 'Mice',
     link: 'https://techbuyz.co.ke/product/hyperx-fury-s-pro-gaming-mouse-padoptimized-for-precision-stitched-anti-fray-edges-x-large-900x420x4mm/',
+    imagePosition: 'left',
+  },
+
+  {
+    id: 8,
+    name: 'TAR-G Gaming Monitor',
+    image: targ, // Add image if available
+    specs: [
+      '1440p ',
+      '165Hz ',
+      '27"',
+      '1ms Response time',
+    ],
+    category: 'Monitor',
+    link: 'https://esgaming.co.ke/shop/27-inch-2k-180hz-flat-gaming-monitor-with-lifting-rotatable-stand/',
     imagePosition: 'left',
   },
 ];
 
 // Define a type for the category icons
 const categoryIcons: Record<string, JSX.Element> = {
+    Monitor: <PiMonitorFill className="text-3xl" />,
   Keyboards: <FaRegKeyboard className="text-3xl" />,
   Audio: <MdOutlineSpeakerGroup className="text-3xl" />,
   Mice: <BsFillMouseFill className="text-3xl" />,
+
 };
 
 const Peripherals: React.FC = () => {
