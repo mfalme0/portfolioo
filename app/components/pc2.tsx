@@ -36,7 +36,7 @@ export default function PerformanceSpecs() {
             times for games and apps, and a second M.2 slot lets you add another drive to expand your collection.
           </p>
           <p className="mt-4 text-sm">
-            *Tested on ROG Strix G15 with NVIDIA® GeForce RTX™ 3050 graphics card, AMD Ryzen™ 7 4800H processor, and 16GB DDR4 RAM.
+            *Tested on ROG Strix G15 with NVIDIA® GeForce RTX™ 3050 graphics card, AMD Ryzen™ 7 4800H processor, and 32GB DDR4 RAM.
           </p>
         </div>
       </div>
@@ -73,7 +73,7 @@ export default function PerformanceSpecs() {
         {/* Memory Section */}
         <div><p className="font-semibold text-base">Up to 64GB</p>
           <div className="w-36 h-36 mx-auto border-4 border-pink-500 rounded-full flex items-center justify-center mb-6">
-            <span className="text-2xl font-bold">16GB</span>
+            <span className="text-2xl font-bold">32GB</span>
           </div>
           
           <p className="text-base">Memory</p>
@@ -82,7 +82,7 @@ export default function PerformanceSpecs() {
         {/* SSD Section */}
         <div><p className='font-semibold text-base'>up to 16TB</p>
           <div className="w-36 h-36 mx-auto border-4 border-pink-500 rounded-full flex items-center justify-center mb-6">
-            <span className="text-2xl font-bold">4.5TB</span>
+            <span className="text-2xl font-bold">5.5TB</span>
           </div>
           <p className="text-base">SSD</p>
         </div>

@@ -1,7 +1,7 @@
 import { BsMicrosoft, BsGoogle } from "react-icons/bs";
 
 const jobo = [
-  { name: 'Microsoft', icon: <BsMicrosoft />, rounds: '7' },
+  { name: 'Microsoft', icon: <BsMicrosoft />, rounds: '10' },
   { name: 'Google', icon: <BsGoogle />, rounds: '2' }
 ];
 

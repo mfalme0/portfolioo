@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import React from 'react';
 import project1 from "../../Images/better.jpeg";
-import project2 from "../../Images/OC.jpeg";
+import project2 from "../../Images/OC.jpeg"; // Imported but not used
 import project3 from "../../Images/ndai.jpeg";
 import project4 from "../../Images/archie.jpeg";
 
@@ -10,64 +10,49 @@ const projects = [
     title: 'Better Farm',
     description: 'This is a farming AI assistant with an inbuilt chat bot.',
     image: project1,
-    alt: 'Project 1',
-    link :'https://betterfarm.vercel.app/'
-  },
-  {
-    title: 'PerfSuite',
-    description: 'An all-inclusive overclocking software.',
-    image: project2,
-    alt: 'Project 2',
-    link :''
+    category: 'app',
+    alt: 'Better Farm',
+    
+    github: 'https://github.com/mfalme0/betterFarm'
   },
   {
     title: 'Ndai',
     description: 'A vehicle management system.',
     image: project3,
-    alt: 'Project 3',
-    link :'https://github.com/mfalme0/ndai.com'
+    category: 'webapp',
+    alt: 'Ndai',
+    github: 'https://github.com/mfalme0/ndai.com'
   },
   {
     title: 'Archie',
     description: 'A file archival and retrieval system.',
     image: project4,
-    alt: 'archie',
-    link :'https://github.com/mfalme0/Archiewebapp'
+    category: 'webapp',
+    alt: 'Archie',
+    github: 'https://github.com/mfalme0/Archiewebapp'
   },
 ];
 
 export function Projects() {
   return (
     <section className="bg-slate-50 dark:bg-gray-900 p-8">
-      <div className="container mx-auto px-8">
-        <h1 className="text-3xl font-bold mb-10 text-center text-gray-700 dark:text-gray-200">
-          My Projects
-        </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
-          {projects.map((project) => (
-            <a
-              key={project.title}
-              href={project.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 max-w-xs w-full"
-            >
-              <Image
-                src={project.image}
-                alt={project.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                  {project.title}
-                </h2>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  {project.description}
-                </p>
-              </div>
-            </a>
-          ))}
-        </div>
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Projects</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {projects.map((project, index) => (
+          <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
+            <Image src={project.image} alt={project.alt} className="w-full h-40 object-cover rounded-md" />
+            <h3 className="text-lg font-bold mt-3 text-gray-900 dark:text-white">{project.title}</h3>
+            <p className="text-gray-700 dark:text-gray-300">{project.description}</p>
+            <div className="mt-2 flex gap-3">
+              {project.link && (
+                <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">demo</a>
+              )}
+              {project.github && (
+                <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:underline">GitHub</a>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
