@@ -11,15 +11,15 @@ export function Header() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
       
-      // Get all sections
+
       const sections = ['hero', 'experience', 'projects', 'techstack', 'contact'];
       
-      // Determine which section is currently in view
+
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
-          // If the section is in the viewport (with some buffer for better UX)
+    
           if (rect.top <= 150 && rect.bottom >= 150) {
             setActiveSection(section);
             break;
