@@ -2,24 +2,50 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
 
-
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
+      
+      // Get all sections
+      const sections = ['hero', 'experience', 'projects', 'techstack', 'contact'];
+      
+      // Determine which section is currently in view
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          // If the section is in the viewport (with some buffer for better UX)
+          if (rect.top <= 150 && rect.bottom >= 150) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
     
-
+    // Call it once to set initial state
+    handleScroll();
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  // Helper function to determine if a link is active
+  const isActive = (section) => {
+    return section === activeSection;
   };
 
   return (
@@ -31,13 +57,16 @@ export function Header() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-4">
 
-
           {/* Centered Navigation */}
           <ul className="hidden md:flex space-x-6 text-lg justify-center flex-1">
             <li>
               <a
                 href="#hero"
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  isActive('hero')
+                    ? 'text-blue-600 dark:text-blue-400 font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }`}
               >
                 Home
               </a>
@@ -45,7 +74,11 @@ export function Header() {
             <li>
               <a
                 href="#experience"
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  isActive('experience')
+                    ? 'text-blue-600 dark:text-blue-400 font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }`}
               >
                 Work Experience
               </a>
@@ -53,7 +86,11 @@ export function Header() {
             <li>
               <a
                 href="#projects"
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  isActive('projects')
+                    ? 'text-blue-600 dark:text-blue-400 font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }`}
               >
                 Projects
               </a>
@@ -61,7 +98,11 @@ export function Header() {
             <li>
               <a
                 href="#techstack"
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  isActive('techstack')
+                    ? 'text-blue-600 dark:text-blue-400 font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }`}
               >
                 Techstack
               </a>
@@ -69,14 +110,16 @@ export function Header() {
             <li>
               <a
                 href="#contact"
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  isActive('contact')
+                    ? 'text-blue-600 dark:text-blue-400 font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }`}
               >
                 Contact
               </a>
             </li>
           </ul>  
-
-
 
           {/* Mobile Menu Icon */}
           <div className="md:hidden">
@@ -103,7 +146,11 @@ export function Header() {
                 <a
                   href="#hero"
                   onClick={toggleMenu}
-                  className="hover:text-gray-400 transition-colors duration-300"
+                  className={`transition-colors duration-300 ${
+                    isActive('hero') 
+                      ? 'text-blue-400 font-medium' 
+                      : 'hover:text-gray-400'
+                  }`}
                 >
                   Home
                 </a>
@@ -112,7 +159,11 @@ export function Header() {
                 <a
                   href="#experience"
                   onClick={toggleMenu}
-                  className="hover:text-gray-400 transition-colors duration-300"
+                  className={`transition-colors duration-300 ${
+                    isActive('experience') 
+                      ? 'text-blue-400 font-medium' 
+                      : 'hover:text-gray-400'
+                  }`}
                 >
                   Work Experience
                 </a>
@@ -121,33 +172,41 @@ export function Header() {
                 <a
                   href="#projects"
                   onClick={toggleMenu}
-                  className="hover:text-gray-400 transition-colors duration-300"
+                  className={`transition-colors duration-300 ${
+                    isActive('projects') 
+                      ? 'text-blue-400 font-medium' 
+                      : 'hover:text-gray-400'
+                  }`}
                 >
                   Projects
                 </a>
               </li>
-
               <li>
                 <a
                   href="#techstack"
                   onClick={toggleMenu}
-                  className="hover:text-gray-400 transition-colors duration-300"
+                  className={`transition-colors duration-300 ${
+                    isActive('techstack') 
+                      ? 'text-blue-400 font-medium' 
+                      : 'hover:text-gray-400'
+                  }`}
                 >
                   Techstack
                 </a>
               </li>
-
               <li>
                 <a
                   href="#contact"
                   onClick={toggleMenu}
-                  className="hover:text-gray-400 transition-colors duration-300"
+                  className={`transition-colors duration-300 ${
+                    isActive('contact') 
+                      ? 'text-blue-400 font-medium' 
+                      : 'hover:text-gray-400'
+                  }`}
                 >
                   Contact
                 </a>
               </li>
-
-
             </ul>
           </div>
         )}

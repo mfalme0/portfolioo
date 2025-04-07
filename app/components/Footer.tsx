@@ -1,4 +1,4 @@
-"use client"; // Ensures this is a client component
+"use client"; 
 
 import React from "react";
 import { BsSteam, BsLinkedin, BsTwitch, BsTwitterX, BsInstagram, BsDiscord, BsGithub } from "react-icons/bs";
@@ -7,11 +7,11 @@ import { BsSteam, BsLinkedin, BsTwitch, BsTwitterX, BsInstagram, BsDiscord, BsGi
 
 export default function Footer() {
   return (
-    <footer className="mt-16 text-center ">
+    <footer className="mt-16 text-center bg-black ">
       
       <p className="text-lg font-semibold mb-4">My Socials</p>
       <div className="flex justify-center flex-wrap gap-8 mb-4">
-        {/* Add your links in the href attribute */}
+   
         <a href="https://github.com/mfalme0" target="_blank" rel="noopener noreferrer" className=" hover:scale-125 transition-transform duration-200 hover:text-purple-600">
         <BsGithub size={40} />
         </a>

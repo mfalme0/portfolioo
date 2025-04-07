@@ -47,7 +47,7 @@ if (loading) {
 }
 
 return(
-    <main className="bg-gradient-to-r from-slate-600 to-gray-500 text-white py-16 px-6 lg:px-20">
+    <main className="bg-gradient-to-r from-slate-600 to-gray-500 text-white flex min-h-screen max-w-full w-screen flex-col items-center justify-between">
       <Header/>
      
       
@@ -63,8 +63,9 @@ return(
     <Games/>
   </section>
 
-  
-  <Footer/>
+     <section className="w-full max-w-screen overflow-x-hidden" id="contact">
+        <Footer />
+      </section>
   {showArrow && (
         <div
           onClick={scorllTorig}
