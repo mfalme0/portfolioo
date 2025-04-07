@@ -28,7 +28,7 @@ export default function Home() {
     };
 
     updateTime(); // Set the initial time
-    const intervalId = setInterval(updateTime, 1000); // Update time every second
+    const intervalId = setInterval(updateTime, 1000); 
 
     return () => clearInterval(intervalId); // Clean up on component unmount
   }, []);
@@ -55,7 +55,7 @@ export default function Home() {
 
   // Simulate loading time
   useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 2000); // Adjust the duration as needed
+    const timeout = setTimeout(() => setLoading(false), 2000); 
     return () => clearTimeout(timeout);
   }, []);
 
@@ -65,7 +65,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen max-w-full w-screen flex-col items-center justify-between bg-gray-50 dark:bg-gray-900 custom-scrollbar overflow-x-hidden">
-      {/* Local Time Display */}
+    
       <Header />
 
       <section className="w-full max-w-screen overflow-x-hidden" id="hero">
@@ -104,7 +104,7 @@ export default function Home() {
       {showArrow && (
         <div
           onClick={scrollToHero}
-          className="fixed bottom-4 right-4 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-300"
+          className="fixed bottom-4 right-4 cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-blue-500 transition-colors duration-300"
         >
           <CiCircleChevUp size={40} />
         </div>

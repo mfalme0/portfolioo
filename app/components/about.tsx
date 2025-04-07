@@ -1,8 +1,8 @@
-// components/AboutMe.js
+
 
 import React from "react";
 import Image from "next/image";
-import profilePic from "../../Images/Mfalme.jpg"; // Update the path to your profile picture
+import profilePic from "../../Images/Mfalme.jpg";
 
 export default function AboutMe() {
   return (

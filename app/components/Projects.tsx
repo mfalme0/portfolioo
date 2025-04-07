@@ -1,9 +1,25 @@
 import Image from 'next/image';
 import React from 'react';
 import project1 from "../../Images/better.jpeg";
-import project2 from "../../Images/OC.jpeg"; // Imported but not used
 import project3 from "../../Images/ndai.jpeg";
 import project4 from "../../Images/archie.jpeg";
+import ganji from "../../Images/ganji.png"
+// Import icons
+import { FaMobile, FaLaptopCode, FaDatabase, FaCode } from 'react-icons/fa';
+
+// Function to get the appropriate icon based on category
+const getCategoryIcon = (category) => {
+  switch(category.toLowerCase()) {
+    case 'app':
+      return <FaMobile className="text-blue-500" />;
+    case 'webapp':
+      return <FaLaptopCode className="text-green-500" />;
+    case 'database':
+      return <FaDatabase className="text-purple-500" />;
+    default:
+      return <FaCode className="text-gray-500" />;
+  }
+};
 
 const projects = [
   {
@@ -12,7 +28,6 @@ const projects = [
     image: project1,
     category: 'app',
     alt: 'Better Farm',
-    
     github: 'https://github.com/mfalme0/betterFarm'
   },
   {
@@ -31,6 +46,14 @@ const projects = [
     alt: 'Archie',
     github: 'https://github.com/mfalme0/Archiewebapp'
   },
+  {
+    title: 'Ganji',
+    description: 'Financial Tracker',
+    image: ganji,
+    category: 'app',
+    alt: 'ganji',    
+    github: 'https://github.com/mfalme0/ganji'
+  },
 ];
 
 export function Projects() {
@@ -41,7 +64,11 @@ export function Projects() {
         {projects.map((project, index) => (
           <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
             <Image src={project.image} alt={project.alt} className="w-full h-40 object-cover rounded-md" />
-            <h3 className="text-lg font-bold mt-3 text-gray-900 dark:text-white">{project.title}</h3>
+            <div className="flex items-center gap-2 mt-3">
+              {getCategoryIcon(project.category)}
+              <span className="text-sm text-gray-500 dark:text-gray-400">{project.category}</span>
+            </div>
+            <h3 className="text-lg font-bold mt-2 text-gray-900 dark:text-white">{project.title}</h3>
             <p className="text-gray-700 dark:text-gray-300">{project.description}</p>
             <div className="mt-2 flex gap-3">
               {project.link && (

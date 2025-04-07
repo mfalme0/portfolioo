@@ -102,7 +102,7 @@ const peripherals = [
   {
     id: 7,
     name: 'HyperX Large Square Mouse Pad',
-    image: hyperx, // Add image if available
+    image: hyperx, 
     specs: [
       'Material: Cloth surface',
       'Dimensions: 450mm x 400mm',
@@ -117,7 +117,7 @@ const peripherals = [
   {
     id: 8,
     name: 'TAR-G Gaming Monitor',
-    image: targ, // Add image if available
+    image: targ, 
     specs: [
       '1440p ',
       '165Hz ',

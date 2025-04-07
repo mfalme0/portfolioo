@@ -16,7 +16,7 @@ export function Hero() {
     } else if (hour < 18) {
       setGreeting('Good Afternoon! 🌤️');
       setGradientClass('bg-gradient-to-r from-blue-500 to-teal-400');
-    } else if (hour < 21) {
+    } else if (hour < 20) {
       setGreeting('Good Evening! 🌇');
       setGradientClass('bg-gradient-to-r from-purple-500 to-red-500');
     } else {

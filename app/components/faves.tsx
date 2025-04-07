@@ -17,12 +17,12 @@ import jack from '@/Images/jack.jpg'
 import congito from '@/Images/congito.jpg'
 import titans from '@/Images/titans.jpg'
 import tdk from '@/Images/tdk.jpg'
-
+import lopi from '@/Images/lopi.png'
 
 interface MyFaves {
   title: string;
   artistOrStudio: string;
-  icon: JSX.Element; // Use JSX element for the icon
+  icon: JSX.Element; 
   category: 'Album' | 'Game' | 'TV Show' | 'Movie' | 'Streamer';
   url: string;
 }
@@ -76,6 +76,13 @@ const goodshit: MyFaves[] = [
     icon: <Image src={jay} alt="JaminJayz" className="w-auto " />,
     category: 'Streamer',
     url: 'https://twitch.tv/jaminjayz',
+  },
+  {
+    title: 'Jaylopi12',
+    artistOrStudio: 'Jay',
+    icon: <Image src={lopi} alt="Jaylopi12" className="w-auto " />,
+    category: 'Streamer',
+    url: 'https://twitch.tv/jaylopi12',
   },
   {
     title: 'GNX',
