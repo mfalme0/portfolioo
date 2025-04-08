@@ -44,7 +44,7 @@ export function Header() {
   };
 
   // Helper function to determine if a link is active
-  const isActive = (section) => {
+  const isActive = (section: string) => {
     return section === activeSection;
   };
 
