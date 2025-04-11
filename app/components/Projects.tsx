@@ -1,25 +1,12 @@
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import project1 from "../../Images/better.jpeg";
 import project3 from "../../Images/ndai.jpeg";
 import project4 from "../../Images/archie.jpeg";
-import ganji from "../../Images/ganji.png"
-// Import icons
+import ganji from "../../Images/ganji.png";
 import { FaMobile, FaLaptopCode, FaDatabase, FaCode } from 'react-icons/fa';
-
-// Function to get the appropriate icon based on category
-const getCategoryIcon = (category) => {
-  switch(category.toLowerCase()) {
-    case 'app':
-      return <FaMobile className="text-blue-500" />;
-    case 'webapp':
-      return <FaLaptopCode className="text-green-500" />;
-    case 'database':
-      return <FaDatabase className="text-purple-500" />;
-    default:
-      return <FaCode className="text-gray-500" />;
-  }
-};
+import { FiGithub, FiExternalLink } from 'react-icons/fi';
+import { getColorClasses } from './colorUtils';
 
 const projects = [
   {
@@ -28,7 +15,9 @@ const projects = [
     image: project1,
     category: 'app',
     alt: 'Better Farm',
-    github: 'https://github.com/mfalme0/betterFarm'
+    github: 'https://github.com/mfalme0/betterFarm',
+    color: 'green',
+    link: ''
   },
   {
     title: 'Ndai',
@@ -36,7 +25,9 @@ const projects = [
     image: project3,
     category: 'webapp',
     alt: 'Ndai',
-    github: 'https://github.com/mfalme0/ndai.com'
+    github: 'https://github.com/mfalme0/ndai.com',
+    color: 'blue',
+    link: ''
   },
   {
     title: 'Archie',
@@ -44,7 +35,9 @@ const projects = [
     image: project4,
     category: 'webapp',
     alt: 'Archie',
-    github: 'https://github.com/mfalme0/Archiewebapp'
+    github: 'https://github.com/mfalme0/Archiewebapp',
+    color: 'indigo',
+    link: ''
   },
   {
     title: 'Ganji',
@@ -52,34 +45,105 @@ const projects = [
     image: ganji,
     category: 'app',
     alt: 'ganji',    
-    github: 'https://github.com/mfalme0/ganji'
+    github: 'https://github.com/mfalme0/ganji',
+    color: 'purple',
+    link: ''
   },
 ];
 
+
+const getCategoryIcon = (category: string) => {
+  switch(category.toLowerCase()) {
+    case 'app':
+      return <FaMobile />;
+    case 'webapp':
+      return <FaLaptopCode />;
+    case 'database':
+      return <FaDatabase />;
+    default:
+      return <FaCode />;
+  }
+};
+
 export function Projects() {
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+
+ 
+
   return (
-    <section className="bg-slate-50 dark:bg-gray-900 p-8">
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Projects</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {projects.map((project, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
-            <Image src={project.image} alt={project.alt} className="w-full h-40 object-cover rounded-md" />
-            <div className="flex items-center gap-2 mt-3">
-              {getCategoryIcon(project.category)}
-              <span className="text-sm text-gray-500 dark:text-gray-400">{project.category}</span>
-            </div>
-            <h3 className="text-lg font-bold mt-2 text-gray-900 dark:text-white">{project.title}</h3>
-            <p className="text-gray-700 dark:text-gray-300">{project.description}</p>
-            <div className="mt-2 flex gap-3">
-              {project.link && (
-                <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">demo</a>
-              )}
-              {project.github && (
-                <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:underline">GitHub</a>
-              )}
-            </div>
-          </div>
-        ))}
+    <section className="bg-gray-50 dark:bg-gray-900 py-20 px-6">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-3xl font-semibold mb-12 text-center text-gray-800 dark:text-gray-200">Projects</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((project, index) => {
+            const isHovered = hoveredCard === index;
+            const colorClasses = getColorClasses(project.color, isHovered);
+            
+            return (
+              <div 
+                key={index} 
+                className={`${colorClasses.bg} rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${isHovered ? 'transform scale-105' : ''}`}
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                <div className="relative h-48 overflow-hidden rounded-t-2xl">
+                  <Image 
+                    src={project.image} 
+                    alt={project.alt} 
+                    className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
+                    style={{ transform: isHovered ? 'scale(1.05)' : 'scale(1)' }}
+                  />
+                  <div className={`absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent`}>
+                    <div className="flex items-center gap-2">
+                      <div className={`flex items-center justify-center w-6 h-6 ${colorClasses.icon} rounded-full transition-colors duration-300`}>
+                        {getCategoryIcon(project.category)}
+                      </div>
+                      <span className="text-sm text-white">{project.category}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className={`text-xl font-medium ${colorClasses.title} transition-colors duration-300`}>
+                    {project.title}
+                  </h3>
+                  
+                  <p className="mt-3 text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    {project.description}
+                  </p>
+                  
+                  <div className={`h-px ${colorClasses.border} my-4 transition-colors duration-300`}></div>
+                  
+                  <div className="flex gap-4">
+                    {project.github && (
+                      <a 
+                        href={project.github} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className={`flex items-center gap-2 px-3 py-2 rounded-md ${colorClasses.button} transition-colors duration-300`}
+                      >
+                        <FiGithub size={16} />
+                        <span>GitHub</span>
+                      </a>
+                    )}
+                    {project.link && (
+                      <a 
+                        href={project.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className={`flex items-center gap-2 px-3 py-2 rounded-md ${colorClasses.button} transition-colors duration-300`}
+                      >
+                        <FiExternalLink size={16} />
+                        <span>Live Demo</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

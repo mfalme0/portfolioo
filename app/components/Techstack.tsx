@@ -1,39 +1,124 @@
-
-import { SiWindows10, SiWindows11, SiMacos,SiAndroid,SiIos, SiLinux, SiProxmox } from 'react-icons/si';
+// TechStack.jsx
+import React, { useState } from 'react';
+import { SiWindows10, SiWindows11, SiMacos, SiAndroid, SiIos, SiLinux, SiProxmox } from 'react-icons/si';
 import { FaAws, FaDocker, FaFigma } from 'react-icons/fa';
 import { DiMongodb } from 'react-icons/di';
 import { RiFirebaseFill } from 'react-icons/ri';
-const languages = [
-  { name: 'Windows 10', icon: <SiWindows10 className="text-4xl text-sky-600" />, proficiency: 'Expert' },
-  { name: 'Windows 11', icon: <SiWindows11 className="text-4xl text-white" />, proficiency: 'Expert' },
-  { name: 'MacOs', icon: <SiMacos className="text-4xl text-white" />, proficiency: 'Intermediate' },
-  { name: 'Ios', icon: <SiIos className="text-4xl text-white" />, proficiency: 'Expert' },
-  { name: 'Android', icon: <SiAndroid className="text-4xl text-lime-500" />, proficiency: 'Advanced' },
-  { name: 'Linux', icon: <SiLinux className="text-4xl text-black" />, proficiency: 'Advanced' },
-  { name: 'AWS', icon: <FaAws className="text-4xl text-orange-600" />, proficiency: 'intermediate' },
-  { name: 'Mongodb', icon: <DiMongodb className="text-4xl text-green-500" />, proficiency: 'Intermediate' },
-  { name: 'Firebase', icon: <RiFirebaseFill className="text-4xl text-amber-400" />, proficiency: 'Advanced' },
-  {name: 'Docker', icon: <FaDocker className="text-4xl text-blue-600" />, proficiency: "advance"},
-  {name: 'Proxmox', icon: <SiProxmox className="text-4xl text-orange-600" />, proficiency: "advance"},
-  {name: 'Figma', icon: <FaFigma className="text-4xl text-white" />, proficiency: "advance"},
+import { getColorClasses } from './colorUtils'; // Import the external utility
+
+const technologies = [
+  { 
+    name: 'Windows 10', 
+    icon: <SiWindows10 />, 
+    proficiency: 'Expert',
+    color: 'blue'
+  },
+  { 
+    name: 'Windows 11', 
+    icon: <SiWindows11 />, 
+    proficiency: 'Expert',
+    color: 'indigo'
+  },
+  { 
+    name: 'MacOS', 
+    icon: <SiMacos />, 
+    proficiency: 'Intermediate',
+    color: 'gray'
+  },
+  { 
+    name: 'iOS', 
+    icon: <SiIos />, 
+    proficiency: 'Expert',
+    color: 'purple'
+  },
+  { 
+    name: 'Android', 
+    icon: <SiAndroid />, 
+    proficiency: 'Advanced',
+    color: 'green'
+  },
+  { 
+    name: 'Linux', 
+    icon: <SiLinux />, 
+    proficiency: 'Advanced',
+    color: 'yellow'
+  },
+  { 
+    name: 'AWS', 
+    icon: <FaAws />, 
+    proficiency: 'Intermediate',
+    color: 'orange'
+  },
+  { 
+    name: 'MongoDB', 
+    icon: <DiMongodb />, 
+    proficiency: 'Intermediate',
+    color: 'green'
+  },
+  { 
+    name: 'Firebase', 
+    icon: <RiFirebaseFill />, 
+    proficiency: 'Advanced',
+    color: 'amber'
+  },
+  {
+    name: 'Docker', 
+    icon: <FaDocker />, 
+    proficiency: "Advanced",
+    color: 'blue'
+  },
+  {
+    name: 'Proxmox', 
+    icon: <SiProxmox />, 
+    proficiency: "Advanced",
+    color: 'orange'
+  },
+  {
+    name: 'Figma', 
+    icon: <FaFigma />, 
+    proficiency: "Advanced",
+    color: 'pink'
+  },
 
 ];
-export default function Techstack() {
+
+export default function TechStack() {
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+
   return (
-    <div className=" bg-white dark:bg-gray-900 p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center  text-gray-500">Techstack</h1>
-      <div className="flex flex-wrap justify-center gap-6">
-        {languages.map((lang) => (
-          <div key={lang.name} className="relative bg-gray-700 p-6 rounded-lg shadow-lg max-w-xs w-full group">
-            <div className="flex justify-center mb-4">
-              {lang.icon}
-            </div>
-            <h2 className="text-xl font-semibold text-center text-gray-800">{lang.name}</h2>
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 text-white text-xl font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
-              {lang.proficiency}
-            </div>
-          </div>
-        ))}
+    <div className="bg-gray-50 dark:bg-gray-900 py-16 px-6">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-semibold mb-12 text-center text-gray-800 dark:text-gray-200">Tech Stack</h1>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          {technologies.map((tech, index) => {
+            const isHovered = hoveredCard === index;
+            const colorClasses = getColorClasses(tech.color, isHovered); // Using the imported function
+            
+            return (
+              <div 
+                key={tech.name}
+                className={`${colorClasses.bg} rounded-xl border ${colorClasses.border} shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${isHovered ? 'transform scale-105' : ''}`}
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                <div className="p-4">
+                  <div className={`flex justify-center items-center h-16 mb-3 text-4xl ${colorClasses.icon} transition-colors duration-300`}>
+                    {tech.icon}
+                  </div>
+                  
+                  <h2 className={`text-base font-medium text-center ${colorClasses.title} mb-3`}>
+                    {tech.name}
+                  </h2>
+                  
+                  <div className={`text-xs font-medium text-center py-1 px-2 rounded-full ${colorClasses.proficiency}`}>
+                    {tech.proficiency}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
