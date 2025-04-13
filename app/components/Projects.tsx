@@ -20,6 +20,16 @@ const projects = [
     link: ''
   },
   {
+    title: 'Ganji',
+    description: 'Financial Tracker',
+    image: ganji,
+    category: 'app',
+    alt: 'ganji',    
+    github: 'https://github.com/mfalme0/ganji',
+    color: 'purple',
+    link: ''
+  },
+  {
     title: 'Ndai',
     description: 'A vehicle management system.',
     image: project3,
@@ -39,16 +49,7 @@ const projects = [
     color: 'indigo',
     link: ''
   },
-  {
-    title: 'Ganji',
-    description: 'Financial Tracker',
-    image: ganji,
-    category: 'app',
-    alt: 'ganji',    
-    github: 'https://github.com/mfalme0/ganji',
-    color: 'purple',
-    link: ''
-  },
+
 ];
 
 
