@@ -11,7 +11,7 @@ const experiences = [
     company: 'SteadFast Academy',
     role: 'Software Engineer',
     duration: 'April 2025 - Present',
-    description: 'I work with the institution to create run and maintain various tools for use by various internal department',
+    description: 'I work with the institution to create, run and maintain various tools for use by various internal department',
     icon: <GrCloudComputer />,
     color: 'blue'
   },
