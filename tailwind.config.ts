@@ -1,22 +1,17 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Tailwind v4 is CSS-first. This file only carries the few things that cannot
+ * live in `@theme` (content sources + plugins). Every design token — colour,
+ * type scale, spacing, easing, radius, shadow — is declared in
+ * `app/globals.css` inside `@theme`.
+ */
 const config: Config = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
-  theme: {
-    extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      },
-    },
-  },
-  plugins: [
-    require("@designbycode/tailwindcss-text-glitch"),
-  ],
+  plugins: [],
 };
+
 export default config;
