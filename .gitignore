@@ -27,6 +27,20 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+
+# secrets — never commit these
+auth.json
+**/auth.json
+*credentials*.json
+*secret*.json
+secrets/
+.env.example is tracked; .env is not
+
+# NOTE: src/data/repos.generated.ts is intentionally COMMITTED, not ignored.
+# It is regenerated at build time by scripts/fetch-repos.mjs, but committing it
+# means a fresh clone can build and deploy even if the GitHub API is unreachable
+# or rate-limited. The script fails soft and leaves the committed copy intact.
 
 # vercel
 .vercel
