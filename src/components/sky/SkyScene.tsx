@@ -7,11 +7,11 @@ import { Celestial } from "./Celestial";
 import { StarField } from "./StarField";
 import { SkyDome } from "./SkyDome";
 import { Pines, BeachGrass } from "./Flora";
-import { SceneryProps, StreetLights, Terrain, GROUND_RADIUS } from "./Terrain";
+import { SceneryProps, StreetLights, Terrain } from "./Terrain";
 import { Sea, WetSand } from "./Water";
 import { directionFromAltitudeAzimuth, kelvinToRgb, type Coordinates } from "@/lib/solar";
 import { moonPosition, moonIllumination } from "@/lib/moon";
-import type { SkyState } from "@/lib/sky";
+import { stylisedAltitude, type SkyState } from "@/lib/sky";
 
 /**
  * The 3D backdrop.
@@ -27,21 +27,28 @@ import type { SkyState } from "@/lib/sky";
 
 const SKY_RADIUS = 4000;
 
-/** Camera altitude range. 0 = high above, 1 = eye level. */
-const START_ALTITUDE = 190;
+/**
+ * Camera altitude range. 0 = high above, 1 = eye level.
+ *
+ * The original 190 was chosen for drama and produced an empty frame: from up
+ * there the 680-unit ground plane subtends 61 degrees and the rest of the
+ * frame is sky dome, so you were looking at a floating island. The altitude
+ * is now chosen against the *ground extent* — see START_ALTITUDE below.
+ */
+const START_ALTITUDE = 78;
 const EYE_LEVEL = 1.7;
 
 /**
  * Camera pitch, in radians. Negative looks down.
  *
- * START is deliberately shallow (-14 degrees) rather than steep: the horizon
+ * START is deliberately shallow (-11 degrees) rather than steep: the horizon
  * and the sky must be visible from the first frame, or the descent has
  * nothing to descend *from*. At eye level pitch is near zero so the horizon
  * settles exactly on the eye line, which is what makes the landing read as
  * landing.
  */
-const START_PITCH = -0.25;
-const END_PITCH = -0.02;
+const START_PITCH = -0.19;
+const END_PITCH = -0.015;
 
 /**
  * Camera rig.
@@ -91,19 +98,22 @@ function CameraRig({ descent }: { descent: number }) {
     );
 
     // --- Position -------------------------------------------------------
-    // Pull back and rise as we ascend so the world stays framed. Starting at
-    // the origin with the camera 260 units up pointed at the ground gave an
-    // empty frame.
+    // Pull back and rise as we ascend so the world stays framed. The
+    // distances are large because the world is large: at 1400 units of
+    // ground, standing 26 units from the camera position would put the
+    // shoreline metres away.
     const altitude = currentAltitude.current;
-    const distance = THREE.MathUtils.lerp(180, 26, descent);
+    const distance = THREE.MathUtils.lerp(340, 120, descent);
 
     camera.position.set(0, altitude, -distance);
     camera.rotation.set(currentPitch.current, 0, 0, "YXZ");
 
     // --- Frustum --------------------------------------------------------
-    // Far plane tracks altitude so depth precision is not wasted on empty sky
-    // at the start, and does not clip the ground at the footer.
-    const far = THREE.MathUtils.lerp(9000, 4200, descent);
+    // Far plane must sit beyond the ground edge at the start altitude or the
+    // world visibly ends in mid-air. The ground extends to 1400 units and the
+    // camera looks toward it from up to 1420 away, so 9000 is comfortable and
+    // still well inside depth precision for a logarithmic-free buffer.
+    const far = THREE.MathUtils.lerp(9000, 5200, descent);
     const cam = camera as THREE.PerspectiveCamera;
     if (Math.abs(cam.far - far) > 1) {
       cam.far = far;
@@ -143,11 +153,15 @@ function SolarLighting({
   const dayFactor = THREE.MathUtils.clamp(sky.intensity, 0, 1);
   const moon = useMemo(() => moonPosition(new Date(), coords), [coords]);
 
+  // Shadows must fall from the same sun you can see on screen, so the key
+  // light uses the compressed altitude rather than the true one.
+  const drawnAltitude = stylisedAltitude(sky.altitude);
+
   useFrame(() => {
     if (!keyRef.current || !ambientRef.current) return;
 
     if (sky.altitude > -1.5) {
-      const dir = directionFromAltitudeAzimuth(sky.altitude, sky.azimuth);
+      const dir = directionFromAltitudeAzimuth(drawnAltitude, sky.azimuth);
       keyRef.current.position.set(dir.x, Math.max(0.05, dir.y), dir.z);
       keyRef.current.color.copy(lightColor);
       keyRef.current.intensity = dayFactor * (quality === "reduced" ? 1.4 : 2.6);
@@ -163,7 +177,7 @@ function SolarLighting({
       // Moonlight is faint but it is what keeps night from being flat black.
       moonRef.current.position.set(
         moon.azimuth * 0.1,
-        Math.max(1, moon.altitude * 0.1),
+        Math.max(1, stylisedAltitude(moon.altitude) * 0.1),
         20,
       );
       moonRef.current.intensity = sky.isDark ? 0.22 : 0;
@@ -211,7 +225,18 @@ function Atmosphere({ sky, descent, quality }: { sky: SkyState; descent: number;
   }, [sky.mid]);
 
   useFrame(() => {
-    const density = THREE.MathUtils.lerp(0.0055, 0.0016, descent);
+    // Aerial perspective.
+    //
+    // Fog density is tuned so that the ground's far edge (GROUND_RADIUS units
+    // out) sits at or past full opacity. Below this the edge is visible as a
+    // hard line against the sky and the whole world reads as a floating slab.
+    //
+    // The start altitude is 78 and the camera sits 340 back, so the far ground
+    // edge is 1740 units away. FogExp2 reaches ~full fog at 3/density, so
+    // density must be at least 3/1740 ≈ 0.00172; 0.0024 gives margin so the
+    // edge never resolves into a hard line against the sky. At the footer we
+    // are standing on the ground and want thin fog, so 0.0004 there.
+    const density = THREE.MathUtils.lerp(0.0024, 0.0004, descent);
     fog.color.set(sky.mid);
     fog.density = density;
     scene.fog = fog;
@@ -248,12 +273,25 @@ function SceneContents({
 
   const daylight = THREE.MathUtils.clamp((sky.altitude + 6) / 26, 0, 1);
 
+  // The sun's *drawn* altitude is compressed into the visible band — see
+  // stylisedAltitude(). At Nairobi's latitude the true sun is above 30
+  // degrees for roughly nine hours a day, so a physically placed disc is
+  // simply not on screen for most of the day.
+  //
+  // Applied to both the disc and the key light below so shadows still agree
+  // with the sun you can see. Sky colour, twilight and contrast all continue
+  // to use the true altitude.
+  const drawnAltitude = useMemo(
+    () => stylisedAltitude(sky.altitude),
+    [sky.altitude],
+  );
+
   // Unit vector toward the sun, for the dome's glow. Computed outside the
   // render loop because it only changes when the sky does.
   const sunDirection = useMemo(() => {
-    const d = directionFromAltitudeAzimuth(sky.altitude, sky.azimuth);
+    const d = directionFromAltitudeAzimuth(drawnAltitude, sky.azimuth);
     return new THREE.Vector3(d.x, d.y, d.z);
-  }, [sky.altitude, sky.azimuth]);
+  }, [drawnAltitude, sky.azimuth]);
 
   const moon = useMemo(
     () => moonPosition(new Date(), coords),
@@ -284,7 +322,7 @@ function SceneContents({
       <SolarLighting sky={sky} coords={coords} quality={quality} />
 
       <Celestial
-        altitude={sky.altitude}
+        altitude={drawnAltitude}
         azimuth={sky.azimuth}
         angularRadius={0.2665}
         temperature={THREE.MathUtils.clamp((sky.temperature - 1900) / 4600, 0, 1)}
@@ -295,7 +333,7 @@ function SceneContents({
 
       {sky.isDark && moon.altitude > -1.5 && (
         <Celestial
-          altitude={moon.altitude}
+          altitude={stylisedAltitude(moon.altitude)}
           azimuth={moon.azimuth}
           angularRadius={0.26}
           temperature={0.5}
@@ -308,7 +346,7 @@ function SceneContents({
 
       <StarField opacity={sky.starOpacity} radius={SKY_RADIUS * 0.9} density={starDensity} />
 
-      <Terrain mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
+      <Terrain mood={sky.mood} daylight={daylight} />
 
       {/* Water and flora only exist at the beach. Rendering them at night
           would show through the street geometry as the mood cross-fades. */}
@@ -317,22 +355,17 @@ function SceneContents({
           <Sea
             mood={sky.mood}
             daylight={daylight}
-            radius={GROUND_RADIUS}
             sunAltitude={sky.altitude}
           />
-          <WetSand
-            mood={sky.mood}
-            daylight={daylight}
-            radius={GROUND_RADIUS}
-          />
-          <Pines mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
-          <BeachGrass mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
+          <WetSand mood={sky.mood} daylight={daylight} />
+          <Pines mood={sky.mood} daylight={daylight} />
+          <BeachGrass mood={sky.mood} daylight={daylight} />
         </>
       )}
 
-      <SceneryProps mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
+      <SceneryProps mood={sky.mood} daylight={daylight} />
       {sky.mood === "street" && (
-        <StreetLights mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
+        <StreetLights mood={sky.mood} daylight={daylight} />
       )}
     </>
   );

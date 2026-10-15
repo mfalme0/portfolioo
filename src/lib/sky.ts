@@ -231,12 +231,63 @@ function mutedForeground(background: string): string {
   return bestRatio >= 4.5 ? best : readableForeground(background);
 }
 
-/** How dark the scene is, 0 (bright day) .. 1 (deep night). */
+/**
+ * How dark the scene is, 0 (bright day) .. 1 (deep night).
+ */
 function darkness(altitude: number): number {
   if (altitude >= 20) return 0;
   if (altitude <= -12) return 1;
   const t = (20 - altitude) / 32;
   return Math.min(1, Math.max(0, t));
+}
+
+/**
+ * Compresses solar altitude into the band the camera can actually see.
+ *
+ * ## Why this exists
+ *
+ * Nairobi sits at 1.3 degrees south. At solar noon the sun reaches ~87
+ * degrees of altitude — nearly overhead — and stays above 30 degrees for
+ * roughly nine hours a day. A camera framed on the horizon sees up to about
+ * 30 degrees. So a physically correct sun is invisible for most of the day,
+ * every day, at this latitude.
+ *
+ * That is astronomically right and useless as a design: a site whose hero
+ * depends on the sun has no sun to look at for 40% of the day.
+ *
+ * ## What this does
+ *
+ * Squashes altitude 0..87 into 0..27 degrees, leaving everything below the
+ * horizon untouched so sunset and twilight still behave correctly. The curve
+ * is sub-linear, which keeps a low sun low — golden hour is the best part of
+ * the effect and must not be pushed up into the sky.
+ *
+ * ## What this does NOT do
+ *
+ * It changes only where the sun is *drawn* and where the key light comes
+ * from. Sky colours, twilight bands, star opacity, day/night scenery and
+ * contrast are all still derived from the true altitude. A noon sky is still
+ * noon blue; only the disc has moved.
+ *
+ * Because the disc and the key light both use this, the shadows in the scene
+ * still agree with the sun you can see. They agree with a stylised sun, not
+ * with the real one — that is the trade, and it is a visible one.
+ */
+export function stylisedAltitude(altitude: number): number {
+  if (altitude <= 0) return altitude;
+
+  const MAX_TRUE_ALTITUDE = 87;
+
+  // Must sit below the camera's frame top at every scroll depth — 21.6
+  // degrees at the top of the page, rising to ~31.6 at the footer. The
+  // binding constraint is the top of the page, so the ceiling is set there.
+  const TARGET_CEILING = 19;
+
+  // Sub-linear: power < 1 pushes mid-range altitudes up relative to linear,
+  // but we want the opposite near the horizon. Squaring the normalised value
+  // keeps the first few degrees genuinely low.
+  const normalised = Math.min(1, altitude / MAX_TRUE_ALTITUDE);
+  return TARGET_CEILING * normalised * normalised;
 }
 
 /**

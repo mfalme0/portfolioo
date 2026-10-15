@@ -24,10 +24,19 @@ interface TerrainProps {
   mood: SceneMood;
   /** 0..1 daylight, drives all colour and material response. */
   daylight: number;
-  radius: number;
 }
 
-const GROUND_SEGMENTS = 128;
+/**
+ * Ground tessellation. The plane spans 2800 units; 160 segments gives ~17.5
+ * units per quad, which is fine for dunes seen from 78 units up. Raising it
+ * further costs vertices for detail the fog eats anyway.
+ */
+const GROUND_SEGMENTS = 160;
+/**
+ * Texture repeat across the whole ground. On a 2800-unit plane a low repeat
+ * makes the sand visibly blurry; this keeps roughly 82 units of world per
+ * tile, which matches how the normal map was authored.
+ */
 const SAND_TILE = 34;
 
 /** Textures per mood. Only one set is ever loaded. */
@@ -63,17 +72,24 @@ function mulberry32(seed: number) {
   };
 }
 
-/** Low-frequency rolling terrain, deterministic per mood. */
+/**
+ * Low-frequency rolling terrain, deterministic per mood.
+ *
+ * The wave numbers are tuned for a 1400-unit ground. At the previous 340
+ * they produced visible ripples; at 1400 the same values give a landscape
+ * rather than a crumpled sheet, which is what a beach needs — dunes should
+ * read as long and smooth.
+ */
 function heightAt(x: number, z: number, mood: SceneMood): number {
   const seedOffset = mood === "beach" ? 0 : 137.5;
-  const a = Math.sin(x * 0.021 + seedOffset) * Math.cos(z * 0.018);
-  const b = Math.sin(x * 0.047 + 1.3) * Math.cos(z * 0.041 + 0.7);
-  const c = Math.sin((x + z) * 0.008 + 2.1);
+  const a = Math.sin(x * 0.0031 + seedOffset) * Math.cos(z * 0.0027);
+  const b = Math.sin(x * 0.0074 + 1.3) * Math.cos(z * 0.0061 + 0.7);
+  const c = Math.sin((x + z) * 0.0012 + 2.1);
 
-  // Beach is nearly flat with a gentle dune swell. Street is flatter still
+  // Beach is nearly flat with a long dune swell. Street is flatter still,
   // with a slight camber toward the horizon.
-  const weight = mood === "beach" ? 1.6 : 0.6;
-  return (a * weight + b * 0.35 + c * 2.2) * (mood === "beach" ? 1.2 : 0.5);
+  const weight = mood === "beach" ? 3.2 : 1.1;
+  return (a * weight + b * 0.8 + c * 5.5) * (mood === "beach" ? 1 : 0.5);
 }
 
 /**
@@ -102,7 +118,7 @@ function useTextureSet(mood: SceneMood) {
           (texture) => {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(SAND_TILE, SAND_TILE);
+            texture.repeat.set(SAND_TILE * 4, SAND_TILE * 4);
             texture.anisotropy = 4;
             // Colour space is the detail that matters most here: diffuse maps
             // are sRGB colour data, while normal and roughness maps are raw
@@ -148,16 +164,18 @@ function useTextureSet(mood: SceneMood) {
   return set;
 }
 
-export function Terrain({ mood, daylight, radius }: TerrainProps) {
+export function Terrain({ mood, daylight }: TerrainProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshStandardMaterial>(null);
   const textures = useTextureSet(mood);
   const config = TEXTURES[mood];
 
   const geometry = useMemo(() => {
+    // 2800 units across. Sized so the far edge is hidden by fog from the
+    // start altitude — see the camera invariants test.
     const geo = new THREE.PlaneGeometry(
-      radius * 2,
-      radius * 2,
+      GROUND_RADIUS * 2,
+      GROUND_RADIUS * 2,
       GROUND_SEGMENTS,
       GROUND_SEGMENTS,
     );
@@ -172,7 +190,7 @@ export function Terrain({ mood, daylight, radius }: TerrainProps) {
     position.needsUpdate = true;
     geo.computeVertexNormals();
     return geo;
-  }, [radius, mood]);
+  }, [mood]);
 
   // Tint and roughness interpolate with daylight so the ground always agrees
   // with the light falling on it. Wet asphalt at night is glossier than dry
@@ -218,7 +236,6 @@ export function Terrain({ mood, daylight, radius }: TerrainProps) {
 interface PropsProps {
   mood: SceneMood;
   daylight: number;
-  radius: number;
   count?: number;
 }
 
@@ -238,7 +255,7 @@ const STREET_PROPS = {
   rough: 0.45,
 };
 
-export function SceneryProps({ mood, daylight, radius }: PropsProps) {
+export function SceneryProps({ mood, daylight }: PropsProps) {
   const beachRef = useRef<THREE.InstancedMesh>(null);
   const spec = mood === "beach" ? BEACH_PROPS : STREET_PROPS;
 
@@ -286,10 +303,12 @@ export function SceneryProps({ mood, daylight, radius }: PropsProps) {
     const dummy = new THREE.Object3D();
 
     for (let i = 0; i < spec.count; i++) {
-      // Scatter in an annulus so props surround the camera rather than
-      // clustering where it lands.
+      // Props are anchored to the camera's resting position, not spread across
+      // the whole ground. At a 1400-unit ground radius a fractional spread
+      // put umbrellas 700+ units away — invisible specks. These cluster in
+      // the band the camera actually looks at during the descent.
       const angle = rand() * Math.PI * 2;
-      const distance = 18 + Math.pow(rand(), 0.65) * radius * 0.55;
+      const distance = 90 + Math.pow(rand(), 0.7) * 520;
 
       const x = Math.cos(angle) * distance;
       const z = Math.sin(angle) * distance;
@@ -301,7 +320,7 @@ export function SceneryProps({ mood, daylight, radius }: PropsProps) {
       list.push(dummy.matrix.clone());
     }
     return list;
-  }, [mood, spec.count, radius]);
+  }, [mood, spec.count]);
 
   const targetRef = beachRef;
 
@@ -329,7 +348,7 @@ export function SceneryProps({ mood, daylight, radius }: PropsProps) {
 }
 
 /** Street lighting is emissive geometry, so it reads at night without lights. */
-export function StreetLights({ radius, daylight }: PropsProps) {
+export function StreetLights({ daylight }: PropsProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const count = 26;
 
@@ -359,7 +378,7 @@ export function StreetLights({ radius, daylight }: PropsProps) {
     const dummy = new THREE.Object3D();
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2 + rand() * 0.12;
-      const distance = 24 + rand() * radius * 0.42;
+      const distance = 90 + rand() * 460;
       const x = Math.cos(angle) * distance;
       const z = Math.sin(angle) * distance;
       dummy.position.set(x, heightAt(x, z, "street"), z);
@@ -368,7 +387,7 @@ export function StreetLights({ radius, daylight }: PropsProps) {
       list.push(dummy.matrix.clone());
     }
     return list;
-  }, [radius]);
+  }, []);
 
   useFrame(() => {
     const mesh = meshRef.current;
@@ -389,5 +408,12 @@ export function StreetLights({ radius, daylight }: PropsProps) {
 
 export { GROUND_SEGMENTS, heightAt };
 
-/** Half-extent of the ground plane. Must match the geometry built from it. */
-export const GROUND_RADIUS = 340;
+/**
+ * Ground half-extent in world units.
+ *
+ * Must stay >= START_ALTITUDE by a wide margin. The ground has to extend
+ * beyond the fog horizon from the camera's highest point, or its edge
+ * resolves into a hard line against the sky and the world reads as a slab
+ * floating in space.
+ */
+export const GROUND_RADIUS = 1400;

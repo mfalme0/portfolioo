@@ -17,7 +17,6 @@ import type { SceneMood } from "@/lib/sky";
 interface FloraProps {
   mood: SceneMood;
   daylight: number;
-  radius: number;
   count?: number;
 }
 
@@ -83,7 +82,7 @@ function mergeGeometries(
   return merged;
 }
 
-export function Pines({ mood, daylight, radius, count = 46 }: FloraProps) {
+export function Pines({ mood, daylight, count = 46 }: FloraProps) {
   const ref = useRef<THREE.InstancedMesh>(null);
 
   const geometry = useMemo(() => pineGeometry(), []);
@@ -115,9 +114,12 @@ export function Pines({ mood, daylight, radius, count = 46 }: FloraProps) {
       const spread = Math.PI * 1.25;
       const theta = Math.PI * 0.5 + (rand() - 0.5) * spread;
 
-      const distance = radius * (0.42 + rand() * 0.42);
+      // Distances are absolute rather than a fraction of the ground radius.
+      // A fraction of 1400 units puts the treeline beyond the fog horizon,
+      // where it contributes nothing but vertices.
+      const distance = 260 + rand() * 380;
       const x = Math.cos(theta) * distance * 0.9;
-      const z = Math.sin(theta) * distance * Math.cos(angle * 0.3);
+      const z = Math.sin(theta) * distance * Math.cos(angle * 0.3) - 200;
 
       dummy.position.set(x, 0, z);
       dummy.rotation.set(0, rand() * Math.PI * 2, 0);
@@ -126,7 +128,7 @@ export function Pines({ mood, daylight, radius, count = 46 }: FloraProps) {
       list.push(dummy.matrix.clone());
     }
     return list;
-  }, [count, radius]);
+  }, [count]);
 
   useFrame(() => {
     const mesh = ref.current;
@@ -155,7 +157,7 @@ export function Pines({ mood, daylight, radius, count = 46 }: FloraProps) {
  * Beach grass tufts. Small, dense, and low — they break up the flat sand
  * near the camera where the texture repeat is most visible.
  */
-export function BeachGrass({ mood, daylight, radius }: FloraProps) {
+export function BeachGrass({ mood, daylight }: FloraProps) {
   const ref = useRef<THREE.InstancedMesh>(null);
   const count = 180;
 
@@ -185,11 +187,13 @@ export function BeachGrass({ mood, daylight, radius }: FloraProps) {
 
     for (let i = 0; i < count; i++) {
       const angle = rand() * Math.PI * 2;
-      const distance = radius * (0.18 + Math.pow(rand(), 0.7) * 0.5);
+      // Absolute units, clustered in front of the camera where the sand
+      // texture repeat is most visible.
+      const distance = 70 + Math.pow(rand(), 0.7) * 340;
       dummy.position.set(
         Math.cos(angle) * distance,
         0,
-        Math.sin(angle) * distance,
+        Math.sin(angle) * distance - 120,
       );
       dummy.rotation.set(0, rand() * Math.PI * 2, (rand() - 0.5) * 0.2);
       dummy.scale.setScalar(0.6 + rand() * 0.8);
@@ -197,7 +201,7 @@ export function BeachGrass({ mood, daylight, radius }: FloraProps) {
       list.push(dummy.matrix.clone());
     }
     return list;
-  }, [radius]);
+  }, []);
 
   useFrame(() => {
     const mesh = ref.current;

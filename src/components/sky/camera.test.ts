@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { stylisedAltitude } from "@/lib/sky";
 
 /**
  * Camera rig invariants.
@@ -19,10 +20,14 @@ import { describe, it, expect } from "vitest";
  */
 
 const FOV = 65;
-const START_ALTITUDE = 190;
+const START_ALTITUDE = 78;
 const EYE_LEVEL = 1.7;
-const START_PITCH = -0.25;
-const END_PITCH = -0.02;
+const START_PITCH = -0.19;
+const END_PITCH = -0.015;
+
+/** Ground half-extent — must match SkyScene.tsx. */
+const GROUND_RADIUS = 1400;
+const START_DISTANCE = 340;
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const DEG = 180 / Math.PI;
@@ -58,7 +63,7 @@ describe("camera rig", () => {
   });
 
   it("descends monotonically from altitude to eye level", () => {
-    expect(lerp(START_ALTITUDE, EYE_LEVEL, 0)).toBeGreaterThan(150);
+    expect(lerp(START_ALTITUDE, EYE_LEVEL, 0)).toBeGreaterThan(50);
     expect(lerp(START_ALTITUDE, EYE_LEVEL, 1)).toBeCloseTo(EYE_LEVEL, 5);
     // A real human eye height, not zero — the camera would be inside the sand.
     expect(EYE_LEVEL).toBeGreaterThan(1.5);
@@ -70,6 +75,36 @@ describe("camera rig", () => {
       expect(altitude).toBeLessThanOrEqual(previous);
       previous = altitude;
     }
+  });
+
+  it("keeps the ground edge beyond the fog horizon", () => {
+    // The bug this guards: at the previous scale the ground was a 680-unit
+    // island inside an 8000-unit sky. Its edge sat at ~520 units while fog
+    // only reached ~545, so the world visibly ended in mid-air.
+    //
+    // FogExp2's fog factor is exp(-(density * depth)^2), so the check is on
+    // density*depth directly — not a linear 3/density heuristic.
+    //
+    // Must match SkyScene.tsx.
+    const startFogDensity = 0.0024;
+    const farEdge = GROUND_RADIUS + START_DISTANCE;
+
+    const fogFactor = Math.exp(-Math.pow(startFogDensity * farEdge, 2));
+
+    // The edge must be at least 99% obscured or it resolves into a hard line
+    // against the sky.
+    expect(fogFactor).toBeLessThan(0.01);
+  });
+
+  it("frames the ground rather than floating above it", () => {
+    // At the old 190-unit start the ground subtended 61 of 65 available
+    // degrees, leaving the frame mostly empty sky. The ground should fill the
+    // lower portion of the frame with sky above, not the reverse.
+    const groundAngle = Math.atan2(GROUND_RADIUS, START_ALTITUDE) * DEG;
+    expect(groundAngle).toBeGreaterThan(FOV / 2);
+    // And the horizon must still sit inside the frame.
+    const { top } = frameRange(START_PITCH);
+    expect(top).toBeGreaterThan(0);
   });
 
   it("keeps the pitch within a natural range", () => {
@@ -99,13 +134,76 @@ describe("camera rig", () => {
   it("never produces a NaN or infinite transform", () => {
     for (let d = 0; d <= 1.0001; d += 0.01) {
       const altitude = lerp(START_ALTITUDE, EYE_LEVEL, d);
-      const distance = lerp(180, 26, d);
-      const far = lerp(9000, 4200, d);
+      const distance = lerp(340, 120, d);
+      const far = lerp(9000, 5200, d);
       for (const v of [altitude, distance, far]) {
         expect(Number.isFinite(v)).toBe(true);
       }
-      expect(far).toBeGreaterThan(altitude);
+      expect(far).toBeGreaterThan(GROUND_RADIUS);
     }
+  });
+});
+
+describe("sun visibility across the day", () => {
+  /*
+   * The failure this guards against: the sun was placed at its true altitude,
+   * which at Nairobi's latitude sits above 30 degrees for roughly nine hours
+   * a day. The camera tops out around 30 degrees, so the sun was genuinely
+   * invisible for most of every day and nobody had seen it at all.
+   */
+
+  /** Top of the visible frame at the given scroll depth. */
+  const frameTopAt = (descent: number) =>
+    (lerp(START_PITCH, END_PITCH, descent) * DEG) + FOV / 2;
+
+  it("keeps the sun inside the frame at solar noon", () => {
+    // Nairobi solar noon altitude is ~87 degrees. Uncompressed that is 55
+    // degrees above the top of the frame at any scroll depth.
+    const trueNoon = 87;
+    expect(trueNoon).toBeGreaterThan(frameTopAt(0));
+    expect(trueNoon).toBeGreaterThan(frameTopAt(1));
+
+    // Compressed, it must be visible at every depth.
+    expect(stylisedAltitude(trueNoon)).toBeLessThan(frameTopAt(0));
+    expect(stylisedAltitude(trueNoon)).toBeLessThan(frameTopAt(1));
+  });
+
+  it("keeps the sun in frame at every hour of a full day", () => {
+    // Sweep a realistic altitude curve from before dawn to after dusk.
+    for (let altitude = -12; altitude <= 87; altitude += 1) {
+      const drawn = stylisedAltitude(altitude);
+      if (drawn < 0) continue; // below the horizon: correctly not drawn
+
+      for (const descent of [0, 0.25, 0.5, 0.75, 1]) {
+        expect(drawn).toBeLessThanOrEqual(frameTopAt(descent));
+      }
+    }
+  });
+
+  it("leaves altitudes at or below the horizon untouched", () => {
+    // Sunset must still happen exactly when it actually happens.
+    for (let altitude = -20; altitude <= 0; altitude += 0.5) {
+      expect(stylisedAltitude(altitude)).toBe(altitude);
+    }
+  });
+
+  it("keeps a low sun low, so golden hour stays golden hour", () => {
+    // Compressing into the visible band must not shove the sunrise sky up to
+    // midday. A sun at 5 degrees should still read as a dawn sun.
+    expect(stylisedAltitude(3)).toBeLessThan(2);
+    expect(stylisedAltitude(6)).toBeLessThan(4);
+    // And it must be monotonic, or the sun would appear to move backwards.
+    let previous = -Infinity;
+    for (let altitude = 0; altitude <= 87; altitude += 0.5) {
+      const drawn = stylisedAltitude(altitude);
+      expect(drawn).toBeGreaterThanOrEqual(previous);
+      previous = drawn;
+    }
+  });
+
+  it("stays within the compressed ceiling", () => {
+    expect(stylisedAltitude(87)).toBeLessThanOrEqual(19);
+    expect(stylisedAltitude(1000)).toBeLessThanOrEqual(19);
   });
 });
 

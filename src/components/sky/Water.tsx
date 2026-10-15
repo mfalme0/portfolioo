@@ -15,20 +15,25 @@ import type { SceneMood } from "@/lib/sky";
 interface WaterProps {
   mood: SceneMood;
   daylight: number;
-  radius: number;
   /** Sun altitude, used to tint the specular response. */
   sunAltitude: number;
 }
 
-export function Sea({ mood, daylight, radius, sunAltitude }: WaterProps) {
+export function Sea({ mood, daylight, sunAltitude }: WaterProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
   const geometry = useMemo(() => {
-    const geo = new THREE.PlaneGeometry(radius * 3, radius * 3, 96, 96);
+    // The sea extends to the horizon and is hidden by fog before its edge
+    // becomes visible. It is NOT sized relative to the ground — an earlier
+    // version made it 3x the ground width and it floated 340 units past the
+    // sand in empty space, which is why the sea was visible from the top of
+    // the page and looked wrong.
+    const size = 12600;
+    const geo = new THREE.PlaneGeometry(size, size, 128, 128);
     geo.rotateX(-Math.PI / 2);
     return geo;
-  }, [radius]);
+  }, []);
 
   // Gentle swell. Two crossing wave sets read as ocean rather than as a
   // single sine.
@@ -69,7 +74,16 @@ export function Sea({ mood, daylight, radius, sunAltitude }: WaterProps) {
   if (mood !== "beach") return null;
 
   return (
-    <mesh ref={meshRef} geometry={geometry} position={[0, -1.4, -radius * 0.9]}>
+    /*
+     * Positioned beyond the shoreline. The sea's near edge must start where
+     * the beach ends, not overlapping it — a sea plane that starts under the
+     * sand z-fights with it and the waterline looks like a mistake.
+     *
+     * Pushed far enough out that from the start altitude the water is beyond
+     * the fog horizon and reads as a distant band rather than a slab in the
+     * foreground.
+     */
+    <mesh ref={meshRef} geometry={geometry} position={[0, -2.0, -5880]}>
       <meshPhysicalMaterial
         ref={materialRef}
         color="#1E4A5A"
@@ -91,7 +105,7 @@ export function Sea({ mood, daylight, radius, sunAltitude }: WaterProps) {
  * is entirely a roughness and colour shift, so a shader is cheaper and more
  * controllable than another texture fetch.
  */
-export function WetSand({ mood, daylight, radius }: Omit<WaterProps, "sunAltitude">) {
+export function WetSand({ mood, daylight }: Omit<WaterProps, "sunAltitude">) {
   const materialRef = useRef<THREE.MeshStandardMaterial>(null);
 
   useFrame(() => {
@@ -103,15 +117,17 @@ export function WetSand({ mood, daylight, radius }: Omit<WaterProps, "sunAltitud
   });
 
   const geometry = useMemo(() => {
-    const geo = new THREE.PlaneGeometry(radius * 2.2, radius * 0.9, 48, 24);
+    // A band along the shoreline, sized in world units rather than as a
+    // fraction of the (now much larger) ground radius.
+    const geo = new THREE.PlaneGeometry(1400, 260, 64, 24);
     geo.rotateX(-Math.PI / 2);
     return geo;
-  }, [radius]);
+  }, []);
 
   if (mood !== "beach") return null;
 
   return (
-    <mesh geometry={geometry} position={[0, 0.05, -radius * 0.52]} receiveShadow>
+    <mesh geometry={geometry} position={[0, 0.05, -560]} receiveShadow>
       <meshStandardMaterial
         ref={materialRef}
         transparent
