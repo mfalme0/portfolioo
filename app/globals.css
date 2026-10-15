@@ -47,7 +47,8 @@
   --sky-horizon: #0b1226;
   --sky-ground: #05070e;
   --sky-fg: #ffffff;
-  --sky-fg-muted: #b9c0ce;
+  --sky-fg-muted: #d4d8e0;
+  --sky-fg-horizon: #ffffff;
   --sky-light: #fff4e6;
   --sky-light-intensity: 0;
   --sky-light-temperature: 1900k;
@@ -193,6 +194,12 @@
 
   .sky-fg-muted {
     color: var(--sky-fg-muted);
+  }
+
+  /* For text sitting over the bright horizon band at golden hour, where the
+     mid sky and the horizon can need opposite foregrounds. */
+  .sky-fg-horizon {
+    color: var(--sky-fg-horizon);
   }
 
   /* Content panel that sits over the live scene. The blur plus tint is what

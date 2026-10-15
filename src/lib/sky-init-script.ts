@@ -102,10 +102,23 @@ export const SKY_INIT_SCRIPT = `
     return 0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2];
   }
 
+  function ratio(fg, bg) {
+    var a = lum(fg), b = lum(bg);
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  }
+  // Must be pure black, not a lifted ink tone: a near-black leaves a gap at
+  // mid-luminance backgrounds where neither black nor white reaches 4.5:1.
+  function readable(bg) {
+    return ratio('#FFFFFF', bg) >= ratio('#000000', bg) ? '#FFFFFF' : '#000000';
+  }
+
   var alt = altitude(new Date());
   var g = sample(alt);
-  var L = lum(g.m);
-  var fg = (1.05 / (L + 0.05)) >= ((L + 0.05) / 0.05) ? '#FFFFFF' : '#08090C';
+  var fg = readable(g.m);
+  var fgH = readable(g.h);
+  var muted = ['#E6E9EF', '#D4D8E0', '#C3C8D2', '#B4BAC6', '#5A6270', '#3A3F4A', '#22262E']
+    .reduce(function (best, c) { return ratio(c, g.m) > ratio(best, g.m) ? c : best; }, fg);
+  if (ratio(muted, g.m) < 4.5) muted = fg;
   var temp = Math.round(1900 + Math.min(1, Math.max(0, (Math.min(60, Math.max(-6, alt)) + 6) / 66)) * 4600);
   var inten = alt <= -6 ? 0 : (function (x) { x = Math.min(1, Math.max(0, (alt + 6) / 40)); return x*x*(3-2*x); })();
   var night = alt < -0.833;
@@ -120,7 +133,8 @@ export const SKY_INIT_SCRIPT = `
   s.setProperty('--sky-horizon', g.h);
   s.setProperty('--sky-ground', g.g);
   s.setProperty('--sky-fg', fg);
-  s.setProperty('--sky-fg-muted', fg === '#FFFFFF' ? '#B9C0CE' : '#4A5262');
+  s.setProperty('--sky-fg-muted', muted);
+  s.setProperty('--sky-fg-horizon', fgH);
   s.setProperty('--sky-light-temperature', temp + 'K');
   s.setProperty('--sky-light-intensity', String(inten));
   s.setProperty('--sky-star-opacity', String(stars));

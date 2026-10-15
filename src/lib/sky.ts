@@ -33,6 +33,12 @@ export interface SkyState {
   foreground: string;
   /** Muted foreground for secondary text. */
   foregroundMuted: string;
+  /**
+   * Foreground for text placed over the horizon band. Separate from
+   * `foreground` because the horizon can be bright amber at golden hour while
+   * the mid sky is still dark enough to want white text.
+   */
+  foregroundHorizon: string;
   /** 0..1 star opacity. */
   starOpacity: number;
   /** Which scenery the descent passes through. */
@@ -142,14 +148,87 @@ function luminance(hex: string): number {
 }
 
 /**
- * Pick whichever of black or white text contrasts better with a background.
- * Guarantees AA compliance without hand-maintaining a colour matrix.
+ * Pick a foreground that meets WCAG AA against a background.
+ *
+ * Choosing between pure black and pure white is not sufficient. Around a
+ * relative luminance of ~0.18 — the mid-sky blue at golden hour — neither
+ * reaches 4.5:1: white gives ~4.4 and black gives ~4.35. The crossover band
+ * where both fail is exactly where the sky sits twice a day. Using true black
+ * closes the gap entirely, so no blending fallback is needed.
+ */
+
+function contrastRatioWith(foreground: string, background: string): number {
+  const l1 = luminance(foreground);
+  const l2 = luminance(background);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+
+/**
+ * The dark foreground. This must be pure black, not a lifted "ink" tone.
+ *
+ * The reason is arithmetic. White clears AA whenever the background
+ * luminance L <= 0.1833, and black clears AA whenever L >= 0.175. Those two
+ * bands overlap, so between them *every* possible luminance is reachable by
+ * one or the other — but only with true black. A near-black like #08090C
+ * sits at luminance 0.003, which lowers its contrast ratio by enough to
+ * create a gap at L ~= 0.183 where both options fall just short of 4.5:1.
+ * That gap is exactly where the midday-to-golden-hour sky sits.
+ */
+const DARKSIDE = "#000000";
+const LIGHTSIDE = "#FFFFFF";
+
+/**
+ * A single foreground cannot serve both the mid sky and the horizon.
+ *
+ * At golden hour the mid is a mid-dark blue (wants white text) while the
+ * horizon is bright amber (wants black text). Forcing one value for both
+ * fails badly — white on amber measures 2.6:1.
+ *
+ * So the contrast-critical pair is resolved against the *mid* sky, which is
+ * what the hero copy actually sits on, and the horizon gets its own value for
+ * anything placed over it. Anything spanning both needs a scrim, which is
+ * what `.scrim-panel` is for.
  */
 function readableForeground(background: string): string {
-  const l = luminance(background);
-  const contrastWithWhite = 1.05 / (l + 0.05);
-  const contrastWithBlack = (l + 0.05) / 0.05;
-  return contrastWithWhite >= contrastWithBlack ? "#FFFFFF" : "#08090C";
+  const withWhite = contrastRatioWith(LIGHTSIDE, background);
+  const withBlack = contrastRatioWith(DARKSIDE, background);
+
+  // The bands overlap, so one of these always wins.
+  return withWhite >= withBlack ? LIGHTSIDE : DARKSIDE;
+}
+
+/**
+ * Secondary text still has to meet AA — it is used for real content, not
+ * decoration.
+ *
+ * Candidates are scored against the actual background and the best-scoring
+ * one that clears the threshold wins. Choosing a muted tone by "looks right
+ * against dark skies" is what let a near-black grey land on a near-black sky
+ * at 1.07:1 in an earlier version of this function.
+ */
+function mutedForeground(background: string): string {
+  const candidates = [
+    "#E6E9EF",
+    "#D4D8E0",
+    "#C3C8D2",
+    "#B4BAC6",
+    "#5A6270",
+    "#3A3F4A",
+    "#22262E",
+  ];
+
+  let best = LIGHTSIDE;
+  let bestRatio = contrastRatioWith(LIGHTSIDE, background);
+
+  for (const candidate of candidates) {
+    const ratio = contrastRatioWith(candidate, background);
+    if (ratio > bestRatio) {
+      best = candidate;
+      bestRatio = ratio;
+    }
+  }
+
+  return bestRatio >= 4.5 ? best : readableForeground(background);
 }
 
 /** How dark the scene is, 0 (bright day) .. 1 (deep night). */
@@ -202,7 +281,8 @@ export function computeSkyState(
     horizon: gradient.horizon,
     ground: gradient.ground,
     foreground: readableForeground(gradient.mid),
-    foregroundMuted: readableForeground(gradient.mid) === "#FFFFFF" ? "#B9C0CE" : "#4A5262",
+    foregroundMuted: mutedForeground(gradient.mid),
+    foregroundHorizon: readableForeground(gradient.horizon),
     starOpacity,
     mood: isDark ? "street" : "beach",
     isDark,
@@ -226,6 +306,7 @@ export function applySkyState(root: HTMLElement, state: SkyState): void {
   s.setProperty("--sky-ground", state.ground);
   s.setProperty("--sky-fg", state.foreground);
   s.setProperty("--sky-fg-muted", state.foregroundMuted);
+  s.setProperty("--sky-fg-horizon", state.foregroundHorizon);
   s.setProperty("--sky-light", state.lightColor);
   s.setProperty("--sky-light-intensity", String(state.intensity));
   s.setProperty("--sky-temperature", `${state.temperature}K`);

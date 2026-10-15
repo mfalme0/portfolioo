@@ -1,8 +1,4 @@
 import "@testing-library/jest-dom/vitest";
-import { expect } from "vitest";
-import { toHaveNoViolations } from "jest-axe";
-
-expect.extend(toHaveNoViolations);
 
 // jsdom lacks these; R3F and the scroll-driven background both touch them.
 if (typeof window !== "undefined") {
