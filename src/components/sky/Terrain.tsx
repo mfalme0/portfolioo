@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { SceneMood } from "@/lib/sky";
@@ -11,21 +11,47 @@ import type { SceneMood } from "@/lib/sky";
  * while the sun and moon shrink. That contrast is what the eye reads as
  * descending rather than flying away.
  *
+ * Surfaces use real CC0 PBR textures (see public/assets/CREDITS.md) rather
+ * than flat colour. The difference is not subtle — wet sand catching the sky
+ * and asphalt with a normal map are what make this read as a photograph
+ * rather than a programmer demo.
+ *
  * Both moods are built from the same kit and instanced. Beach and street never
- * exist in memory at the same time — the inactive one is not rendered at all.
+ * exist in memory at the same time.
  */
 
 interface TerrainProps {
   mood: SceneMood;
-  /** 0 at the top of the page, 1 at the footer. */
-  descent: number;
   /** 0..1 daylight, drives all colour and material response. */
   daylight: number;
   radius: number;
 }
 
-const GROUND_RADIUS = 340;
-const GROUND_SEGMENTS = 96;
+const GROUND_SEGMENTS = 128;
+const SAND_TILE = 34;
+
+/** Textures per mood. Only one set is ever loaded. */
+const TEXTURES = {
+  beach: {
+    diffuse: "/assets/textures/beach-sand_diff.webp",
+    normal: "/assets/textures/beach-sand_nor_gl.webp",
+    roughness: "/assets/textures/beach-sand_rough.webp",
+    // Base colours of the sand textures, used for tinting.
+    day: "#E8D6AE",
+    night: "#2B2A32",
+    roughnessDay: 0.88,
+    roughnessNight: 0.92,
+  },
+  street: {
+    diffuse: "/assets/textures/street-asphalt_diff.webp",
+    normal: "/assets/textures/street-asphalt_nor_gl.webp",
+    roughness: "/assets/textures/street-asphalt_rough.webp",
+    day: "#4A4E58",
+    night: "#1A1C24",
+    roughnessDay: 0.55,
+    roughnessNight: 0.32, // Wet asphalt at night is glossier than dry by day
+  },
+} as const;
 
 function mulberry32(seed: number) {
   return function () {
@@ -46,12 +72,87 @@ function heightAt(x: number, z: number, mood: SceneMood): number {
 
   // Beach is nearly flat with a gentle dune swell. Street is flatter still
   // with a slight camber toward the horizon.
-  const beachWeight = mood === "beach" ? 1.6 : 0.6;
-  return (a * beachWeight + b * 0.35 + c * 2.2) * (mood === "beach" ? 1.2 : 0.5);
+  const weight = mood === "beach" ? 1.6 : 0.6;
+  return (a * weight + b * 0.35 + c * 2.2) * (mood === "beach" ? 1.2 : 0.5);
 }
 
-export function Terrain({ mood, descent, daylight, radius }: TerrainProps) {
+/**
+ * Loads a texture set, with every map configured for tiling and colour space.
+ *
+ * Colour space is the detail that matters most here: diffuse maps must be
+ * sRGB, while normal and roughness maps are data and must be left linear.
+ * Getting this wrong makes the ground either washed out or overly contrasty.
+ */
+function useTextureSet(mood: SceneMood) {
+  const [set, setSet] = useState<{
+    map: THREE.Texture;
+    normalMap: THREE.Texture;
+    roughnessMap: THREE.Texture;
+  } | null>(null);
+
+  useEffect(() => {
+    const loader = new THREE.TextureLoader();
+    const config = TEXTURES[mood];
+    let cancelled = false;
+
+    const load = (url: string, srgb: boolean) =>
+      new Promise<THREE.Texture>((resolve) => {
+        loader.load(
+          url,
+          (texture) => {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(SAND_TILE, SAND_TILE);
+            texture.anisotropy = 4;
+            // Colour space is the detail that matters most here: diffuse maps
+            // are sRGB colour data, while normal and roughness maps are raw
+            // data and must stay linear. Getting this wrong washes the ground
+            // out or over-contrasts it.
+            if (srgb) {
+              texture.colorSpace = THREE.SRGBColorSpace;
+            }
+            resolve(texture);
+          },
+          undefined,
+          () => resolve(null as unknown as THREE.Texture),
+        );
+      });
+
+    // Three.js reads roughness from the green channel of a standard ORM map,
+    // which is what Poly Haven's Rough output is.
+    Promise.all([
+      load(config.diffuse, true),
+      load(config.normal, false),
+      load(config.roughness, false),
+    ]).then(([map, normalMap, roughnessMap]) => {
+      if (cancelled) return;
+      if (map && normalMap && roughnessMap) {
+        setSet({ map, normalMap, roughnessMap });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      // Dispose on mood change or the GPU leaks a full texture set each time.
+      setSet((prev) => {
+        if (prev) {
+          prev.map.dispose();
+          prev.normalMap.dispose();
+          prev.roughnessMap.dispose();
+        }
+        return null;
+      });
+    };
+  }, [mood]);
+
+  return set;
+}
+
+export function Terrain({ mood, daylight, radius }: TerrainProps) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const materialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const textures = useTextureSet(mood);
+  const config = TEXTURES[mood];
 
   const geometry = useMemo(() => {
     const geo = new THREE.PlaneGeometry(
@@ -73,40 +174,37 @@ export function Terrain({ mood, descent, daylight, radius }: TerrainProps) {
     return geo;
   }, [radius, mood]);
 
-  // Beach sand is warm and bright; wet asphalt at night is dark and specular.
-  // Both are tinted from the sky's own colours so the ground always agrees
-  // with the light falling on it.
-  const material = useMemo(() => {
-    const sand = new THREE.Color("#D9C39A");
-    const sandNight = new THREE.Color("#2A2A32");
-    const asphalt = new THREE.Color("#2E3038");
-    const asphaltNight = new THREE.Color("#171820");
-
-    const base = mood === "beach" ? sand : asphalt;
-    const night = mood === "beach" ? sandNight : asphaltNight;
-    const color = base.clone().lerp(night, 1 - daylight);
-
-    return new THREE.MeshStandardMaterial({
-      color,
-      roughness: mood === "beach" ? 0.92 : 0.42,
-      metalness: 0.0,
-      // Wet ground at night catches the street lighting.
-      envMapIntensity: mood === "beach" ? 0.2 : 0.7,
-    });
-  }, [mood, daylight]);
-
-  // Ground detail resolves as you descend — a mesh detail budget that scales
-  // with altitude would be ideal, but swapping geometry mid-scroll is more
-  // expensive than the segments cost, so the segment count is fixed and the
-  // fog does the work of hiding distance.
+  // Tint and roughness interpolate with daylight so the ground always agrees
+  // with the light falling on it. Wet asphalt at night is glossier than dry
+  // asphalt by day, which is a real effect and reads well.
   useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.position.y = -2 + descent * 1.5;
-    }
+    const material = materialRef.current;
+    if (!material) return;
+
+    const day = new THREE.Color(config.day);
+    const night = new THREE.Color(config.night);
+    material.color.copy(night.clone().lerp(day, daylight));
+    material.roughness = THREE.MathUtils.lerp(
+      config.roughnessNight,
+      config.roughnessDay,
+      daylight,
+    );
+    // A touch of environment reflection keeps the ground from going flat.
+    material.envMapIntensity = 0.35 + daylight * 0.4;
   });
 
   return (
-    <mesh ref={meshRef} geometry={geometry} material={material} receiveShadow />
+    <mesh ref={meshRef} geometry={geometry} receiveShadow>
+      <meshStandardMaterial
+        ref={materialRef}
+        map={textures?.map}
+        normalMap={textures?.normalMap}
+        roughnessMap={textures?.roughnessMap}
+        normalScale={new THREE.Vector2(1.4, 1.4)}
+        roughness={0.9}
+        metalness={0}
+      />
+    </mesh>
   );
 }
 
@@ -142,8 +240,6 @@ const STREET_PROPS = {
 
 export function SceneryProps({ mood, daylight, radius }: PropsProps) {
   const beachRef = useRef<THREE.InstancedMesh>(null);
-  const streetRef = useRef<THREE.InstancedMesh>(null);
-
   const spec = mood === "beach" ? BEACH_PROPS : STREET_PROPS;
 
   // Umbrellas are a hexagonal canopy on a pole — recognisable, cheap, and
@@ -195,25 +291,24 @@ export function SceneryProps({ mood, daylight, radius }: PropsProps) {
       const angle = rand() * Math.PI * 2;
       const distance = 18 + Math.pow(rand(), 0.65) * radius * 0.55;
 
-      dummy.position.set(
-        Math.cos(angle) * distance,
-        heightAt(Math.cos(angle) * distance, Math.sin(angle) * distance, mood),
-        Math.sin(angle) * distance,
-      );
+      const x = Math.cos(angle) * distance;
+      const z = Math.sin(angle) * distance;
+
+      dummy.position.set(x, heightAt(x, z, mood), z);
       dummy.rotation.set(0, rand() * Math.PI * 2, 0);
-      const scale = 0.75 + rand() * 0.6;
-      dummy.scale.setScalar(scale);
+      dummy.scale.setScalar(0.75 + rand() * 0.6);
       dummy.updateMatrix();
       list.push(dummy.matrix.clone());
     }
     return list;
   }, [mood, spec.count, radius]);
 
-  const targetRef = mood === "beach" ? beachRef : streetRef;
+  const targetRef = beachRef;
 
   useFrame(() => {
     const mesh = targetRef.current;
     if (!mesh) return;
+    // Guard so the matrices are only uploaded once, not every frame.
     if (mesh.userData.applied === matrices.length) return;
     matrices.forEach((m, i) => mesh.setMatrixAt(i, m));
     mesh.instanceMatrix.needsUpdate = true;
@@ -265,11 +360,9 @@ export function StreetLights({ radius, daylight }: PropsProps) {
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2 + rand() * 0.12;
       const distance = 24 + rand() * radius * 0.42;
-      dummy.position.set(
-        Math.cos(angle) * distance,
-        heightAt(Math.cos(angle) * distance, Math.sin(angle) * distance, "street"),
-        Math.sin(angle) * distance,
-      );
+      const x = Math.cos(angle) * distance;
+      const z = Math.sin(angle) * distance;
+      dummy.position.set(x, heightAt(x, z, "street"), z);
       dummy.rotation.set(0, 0, 0);
       dummy.updateMatrix();
       list.push(dummy.matrix.clone());
@@ -294,4 +387,7 @@ export function StreetLights({ radius, daylight }: PropsProps) {
   );
 }
 
-export { GROUND_RADIUS, heightAt };
+export { GROUND_SEGMENTS, heightAt };
+
+/** Half-extent of the ground plane. Must match the geometry built from it. */
+export const GROUND_RADIUS = 340;

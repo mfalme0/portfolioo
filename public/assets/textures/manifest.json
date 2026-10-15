@@ -1,0 +1,44 @@
+[
+  {
+    "role": "beach-sand",
+    "assetId": "coast_sand_01",
+    "filename": "beach-sand_diff.webp",
+    "size": 271964,
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/coast_sand_01/coast_sand_01_diff_2k.jpg"
+  },
+  {
+    "role": "beach-sand",
+    "assetId": "coast_sand_01",
+    "filename": "beach-sand_nor_gl.webp",
+    "size": 448938,
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/coast_sand_01/coast_sand_01_nor_gl_2k.jpg"
+  },
+  {
+    "role": "beach-sand",
+    "assetId": "coast_sand_01",
+    "filename": "beach-sand_rough.webp",
+    "size": 31912,
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/coast_sand_01/coast_sand_01_rough_2k.jpg"
+  },
+  {
+    "role": "street-asphalt",
+    "assetId": "asphalt_02",
+    "filename": "street-asphalt_diff.webp",
+    "size": 380772,
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/asphalt_02/asphalt_02_diff_2k.jpg"
+  },
+  {
+    "role": "street-asphalt",
+    "assetId": "asphalt_02",
+    "filename": "street-asphalt_nor_gl.webp",
+    "size": 486026,
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/asphalt_02/asphalt_02_nor_gl_2k.jpg"
+  },
+  {
+    "role": "street-asphalt",
+    "assetId": "asphalt_02",
+    "filename": "street-asphalt_rough.webp",
+    "size": 415388,
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/asphalt_02/asphalt_02_rough_2k.jpg"
+  }
+]

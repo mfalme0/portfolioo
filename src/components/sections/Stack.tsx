@@ -1,5 +1,6 @@
 import { repos } from "@/data/repos.generated";
 import { aggregateLanguages, languageColor } from "@/lib/languages";
+import { Reveal } from "@/components/motion/Reveal";
 
 /**
  * Stack.
@@ -20,18 +21,20 @@ export function Stack() {
   return (
     <section id="stack" className="section">
       <div className="container-page">
-        <header className="mb-12">
-          <p className="eyebrow">Stack</p>
-          <h2 className="mt-3 text-3xl font-semibold">
-            What I actually write, measured in bytes
-          </h2>
-          <p className="mt-4 max-w-2xl text-ink-muted text-pretty">
-            Pulled from the GitHub API at build time. Roughly{" "}
-            {(total / 1_000_000).toFixed(1)} million lines-bytes across{" "}
-            {repos.length} repositories — no self-assessed skill levels,
-            because those cannot be verified.
-          </p>
-        </header>
+        <Reveal>
+          <header className="mb-12">
+            <p className="eyebrow">Stack</p>
+            <h2 className="mt-3 text-3xl font-semibold">
+              What I actually write, measured in bytes
+            </h2>
+            <p className="mt-4 max-w-2xl text-ink-muted text-pretty">
+              Pulled from the GitHub API at build time. Roughly{" "}
+              {(total / 1_000_000).toFixed(1)} million lines-bytes across{" "}
+              {repos.length} repositories — no self-assessed skill levels,
+              because those cannot be verified.
+            </p>
+          </header>
+        </Reveal>
 
         <div
           className="mb-10 flex h-3 overflow-hidden rounded-full bg-surface-3"
@@ -61,7 +64,7 @@ export function Stack() {
               />
               <span className="font-mono text-sm">{lang.name}</span>
               <span
-                className="ml-auto text-sm tabular-nums text-ink-subtle"
+                className="tabular ml-auto text-sm text-ink-subtle"
                 aria-label={`${(lang.share * 100).toFixed(1)} percent`}
               >
                 {(lang.share * 100).toFixed(1)}%

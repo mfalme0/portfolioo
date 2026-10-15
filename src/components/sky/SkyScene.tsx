@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { Celestial } from "./Celestial";
 import { StarField } from "./StarField";
 import { SceneryProps, StreetLights, Terrain, GROUND_RADIUS } from "./Terrain";
+import { Sea, WetSand } from "./Water";
 import { directionFromAltitudeAzimuth, kelvinToRgb, type Coordinates } from "@/lib/solar";
 import { moonPosition } from "@/lib/moon";
 import type { SkyState } from "@/lib/sky";
@@ -256,12 +257,26 @@ function SceneContents({
 
       <StarField opacity={sky.starOpacity} radius={SKY_RADIUS} density={starDensity} />
 
-      <Terrain
-        mood={sky.mood}
-        descent={descent}
-        daylight={daylight}
-        radius={GROUND_RADIUS}
-      />
+      <Terrain mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
+
+      {/* Water only exists at the beach. Rendering it at night would be
+          visible through the street geometry as the mood cross-fades. */}
+      {sky.mood === "beach" && (
+        <>
+          <Sea
+            mood={sky.mood}
+            daylight={daylight}
+            radius={GROUND_RADIUS}
+            sunAltitude={sky.altitude}
+          />
+          <WetSand
+            mood={sky.mood}
+            daylight={daylight}
+            radius={GROUND_RADIUS}
+          />
+        </>
+      )}
+
       <SceneryProps mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
       {sky.mood === "street" && (
         <StreetLights mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />

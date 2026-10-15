@@ -66,7 +66,10 @@
   --font-sans: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* Fluid display scale — clamp so it never needs a breakpoint to look right. */
+  /* Fluid display scale — clamp so it never needs a breakpoint to look right.
+     Each step carries its own tracking: large type needs *tighter* letterspacing
+     than small type, because the default spacing that reads as correct at 14px
+     reads as loose and amateurish at 72px. */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -76,6 +79,15 @@
   --text-3xl: clamp(1.875rem, 2vw + 1rem, 3rem);
   --text-4xl: clamp(2.25rem, 3.5vw + 1rem, 4.5rem);
   --text-5xl: clamp(3rem, 6vw + 1rem, 7.5rem);
+
+  /* Per-size tracking. Negative as size grows — this is the single biggest
+     difference between "looks designed" and "looks like default CSS". */
+  --tracking-tight: -0.02em;
+  --tracking-display: -0.035em;
+  --tracking-hero: -0.045em;
+
+  /* Optical sizing axis for variable fonts. */
+  --font-optical-sizing: auto;
 
   /* --- Spacing — 8px rhythm -------------------------------------------- */
   --spacing: 0.25rem;
@@ -150,12 +162,27 @@
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
     text-wrap: balance;
+    /* Variable fonts expose an optical-size axis; enabling it makes thin
+       strokes thicken correctly as type grows. */
+    font-optical-sizing: var(--font-optical-sizing);
+    font-variation-settings: "opsz" auto;
   }
+
+  /* Tracking scales inversely with size. */
+  h1, .text-5xl { letter-spacing: var(--tracking-hero); }
+  h2, h3, .text-4xl { letter-spacing: var(--tracking-display); }
+  h4, .text-3xl { letter-spacing: var(--tracking-tight); }
 
   p {
     text-wrap: pretty;
+  }
+
+  /* Numerals should be tabular wherever a value sits in a column or next to
+     a changing sibling — percentage stacks, star counts, byte totals. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
   }
 
   /* Reserve scrollbar space so the fixed 3D layer never causes a shift. */
