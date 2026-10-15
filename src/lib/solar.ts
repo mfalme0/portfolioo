@@ -100,7 +100,6 @@ function eccentricityOfEarthOrbit(t: number): number {
  */
 function equationOfCentre(t: number): number {
   const m = geometricMeanAnomaly(t) * DEG;
-  const e = eccentricityOfEarthOrbit(t);
   return (
     Math.sin(m) * (1.914602 - t * (0.004817 + 0.000014 * t)) +
     Math.sin(2 * m) * (0.019993 - 0.000101 * t) +

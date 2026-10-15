@@ -1,0 +1,357 @@
+import { useMemo, useRef } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
+import * as THREE from "three";
+
+import { Celestial } from "./Celestial";
+import { StarField } from "./StarField";
+import { SceneryProps, StreetLights, Terrain, GROUND_RADIUS } from "./Terrain";
+import { directionFromAltitudeAzimuth, kelvinToRgb, type Coordinates } from "@/lib/solar";
+import { moonPosition } from "@/lib/moon";
+import type { SkyState } from "@/lib/sky";
+
+/**
+ * The 3D backdrop.
+ *
+ * One continuous descent, from high above the world at the top of the page to
+ * eye level at the footer. The camera altitude is the only thing scroll drives;
+ * everything else — scenery, lighting, fog, celestial scale — is derived from
+ * the solar state and the altitude.
+ *
+ * Content is NOT in this canvas. The scene is decorative and sits behind the
+ * DOM, so text stays selectable, indexable and screen-reader accessible.
+ */
+
+const SKY_RADIUS = 4000;
+
+/** Camera altitude range. 0 = high above, 1 = eye level. */
+const START_ALTITUDE = 260;
+const EYE_LEVEL = 1.7;
+
+/**
+ * Camera rig.
+ *
+ * Two things matter here beyond moving a position:
+ *
+ * 1. Damped interpolation. Reading the scroll value directly makes the camera
+ *    feel welded to the scrollbar. Damping gives it weight.
+ * 2. Pitch compensation. As the camera drops, the look-angle has to converge
+ *    so the horizon settles at eye level instead of drifting upward.
+ */
+function CameraRig({ descent }: { descent: number }) {
+  const { camera } = useThree();
+  const current = useRef(START_ALTITUDE);
+  const lookAt = useRef(new THREE.Vector3(0, 0, 0));
+
+  useFrame((_, delta) => {
+    // Frame-rate independent damping. A raw lerp factor would make the feel
+    // depend on whether the device was hitting 30 or 60 fps.
+    const damping = 1 - Math.pow(0.0015, Math.min(delta, 0.1));
+
+    const targetAltitude = THREE.MathUtils.lerp(
+      START_ALTITUDE,
+      EYE_LEVEL,
+      descent,
+    );
+    current.current = THREE.MathUtils.lerp(
+      current.current,
+      targetAltitude,
+      damping,
+    );
+
+    const altitude = current.current;
+
+    // Drift forward slightly as we descend so the world reveals itself.
+    const z = THREE.MathUtils.lerp(-120, 40, descent);
+
+    camera.position.set(0, altitude, z);
+
+    // Above the horizon we look down at the world; at eye level we look
+    // straight ahead. The interpolation is eased so the transition is smooth
+    // rather than a visible pivot.
+    const pitch = THREE.MathUtils.lerp(-1.15, -0.02, descent);
+    lookAt.current.set(0, 0, z + 60);
+    camera.lookAt(lookAt.current);
+    camera.rotation.x += pitch;
+    camera.rotation.z = 0;
+
+    // Far plane tracks altitude so depth precision is not wasted on empty
+    // sky at the start, and does not clip the ground at the footer.
+    const far = THREE.MathUtils.lerp(9000, 2600, descent);
+    const cam = camera as THREE.PerspectiveCamera;
+    if (cam.far !== far) {
+      cam.far = far;
+      cam.updateProjectionMatrix();
+    }
+  });
+
+  return null;
+}
+
+/**
+ * Lighting derived from the real sun position.
+ *
+ * The key light is positioned along the true solar vector, so shadows fall in
+ * the direction they would at that time of day. Colour comes from the solar
+ * colour temperature, which is what actually sells the lighting — a white
+ * light at sunset looks wrong no matter how well the geometry is placed.
+ */
+function SolarLighting({
+  sky,
+  coords,
+  quality,
+}: {
+  sky: SkyState;
+  coords: Coordinates;
+  quality: "full" | "reduced";
+}) {
+  const keyRef = useRef<THREE.DirectionalLight>(null);
+  const ambientRef = useRef<THREE.HemisphereLight>(null);
+  const moonRef = useRef<THREE.DirectionalLight>(null);
+
+  const lightColor = useMemo(
+    () => new THREE.Color(...kelvinToRgb(sky.temperature)),
+    [sky.temperature],
+  );
+
+  const dayFactor = THREE.MathUtils.clamp(sky.intensity, 0, 1);
+  const moon = useMemo(() => moonPosition(new Date(), coords), [coords]);
+
+  useFrame(() => {
+    if (!keyRef.current || !ambientRef.current) return;
+
+    if (sky.altitude > -1.5) {
+      const dir = directionFromAltitudeAzimuth(sky.altitude, sky.azimuth);
+      keyRef.current.position.set(dir.x, Math.max(0.05, dir.y), dir.z);
+      keyRef.current.color.copy(lightColor);
+      keyRef.current.intensity = dayFactor * (quality === "reduced" ? 1.4 : 2.6);
+
+      // Ambient tracks the sky, so shadows are filled by the same light that
+      // is visible behind them.
+      ambientRef.current.intensity = 0.12 + dayFactor * 0.55;
+      ambientRef.current.color.set(sky.zenith);
+      ambientRef.current.groundColor.set(sky.ground);
+    }
+
+    if (moonRef.current) {
+      // Moonlight is faint but it is what keeps night from being flat black.
+      moonRef.current.position.set(
+        moon.azimuth * 0.1,
+        Math.max(1, moon.altitude * 0.1),
+        20,
+      );
+      moonRef.current.intensity = sky.isDark ? 0.22 : 0;
+    }
+  });
+
+  const shadowSize = quality === "reduced" ? 1024 : 2048;
+
+  return (
+    <>
+      <hemisphereLight ref={ambientRef} intensity={0.4} />
+      <directionalLight
+        ref={keyRef}
+        castShadow={quality === "full"}
+        shadow-mapSize-width={shadowSize}
+        shadow-mapSize-height={shadowSize}
+        // The shadow frustum must track the descending camera. A frustum sized
+        // for altitude loses all resolution by the time we reach ground level.
+        shadow-camera-near={1}
+        shadow-camera-far={900}
+        shadow-camera-left={-320}
+        shadow-camera-right={320}
+        shadow-camera-top={320}
+        shadow-camera-bottom={-320}
+        shadow-bias={-0.0005}
+      />
+      <directionalLight ref={moonRef} intensity={0} color="#8FA6D8" />
+    </>
+  );
+}
+
+/**
+ * Aerial perspective.
+ *
+ * Without this the descent has no depth cue and reads as a flat zoom. Density
+ * starts high — you are far from everything — and thins out as you land.
+ */
+function Atmosphere({ sky, descent, quality }: { sky: SkyState; descent: number; quality: "full" | "reduced" }) {
+  const { scene } = useThree();
+
+  const fog = useMemo(() => {
+    // FogExp2 keeps density independent of the far plane, which matters
+    // because the far plane changes with altitude.
+    return new THREE.FogExp2(new THREE.Color(sky.mid), 0.004);
+  }, [sky.mid]);
+
+  useFrame(() => {
+    const density = THREE.MathUtils.lerp(0.0055, 0.0016, descent);
+    fog.color.set(sky.mid);
+    fog.density = density;
+    scene.fog = fog;
+  });
+
+  void quality;
+  return null;
+}
+
+function SceneContents({
+  sky,
+  coords,
+  descent,
+  quality,
+}: {
+  sky: SkyState;
+  coords: Coordinates;
+  descent: number;
+  quality: "full" | "reduced";
+}) {
+  const { gl } = useThree();
+
+  // Star density is the cheapest thing to sacrifice on constrained hardware.
+  const starDensity = quality === "reduced" ? 0.35 : 1;
+
+  useFrame(() => {
+    // DPR is clamped hard. Uncapped devicePixelRatio on a 3x phone is a
+    // 9x fill-rate increase for a difference almost nobody can see.
+    const target = Math.min(window.devicePixelRatio, 1.5);
+    if (Math.abs(gl.getPixelRatio() - target) > 0.01) {
+      gl.setPixelRatio(target);
+    }
+  });
+
+  const daylight = THREE.MathUtils.clamp(
+    (sky.altitude + 6) / 26,
+    0,
+    1,
+  );
+
+  return (
+    <>
+      <CameraRig descent={descent} />
+      <Atmosphere sky={sky} descent={descent} quality={quality} />
+      <SolarLighting sky={sky} coords={coords} quality={quality} />
+
+      <Celestial
+        altitude={sky.altitude}
+        azimuth={sky.azimuth}
+        angularRadius={0.2665}
+        temperature={THREE.MathUtils.clamp((sky.temperature - 1900) / 4600, 0, 1)}
+        intensity={sky.intensity}
+        isMoon={false}
+        skyRadius={SKY_RADIUS}
+      />
+
+      {sky.isDark && (
+        <Celestial
+          altitude={moonPosition(new Date(), coords).altitude}
+          azimuth={moonPosition(new Date(), coords).azimuth}
+          angularRadius={0.26}
+          temperature={0.5}
+          intensity={1}
+          isMoon
+          skyRadius={SKY_RADIUS}
+        />
+      )}
+
+      <StarField opacity={sky.starOpacity} radius={SKY_RADIUS} density={starDensity} />
+
+      <Terrain
+        mood={sky.mood}
+        descent={descent}
+        daylight={daylight}
+        radius={GROUND_RADIUS}
+      />
+      <SceneryProps mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
+      {sky.mood === "street" && (
+        <StreetLights mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
+      )}
+    </>
+  );
+}
+
+export interface SkySceneProps {
+  sky: SkyState;
+  coords: Coordinates;
+  descent: number;
+  quality: "full" | "reduced";
+  onContextLost: () => void;
+  /** Fired once the first frame has actually been drawn. */
+  onFirstFrame?: () => void;
+}
+
+function FirstFrameSignal({ onFirstFrame }: { onFirstFrame?: () => void }) {
+  const fired = useRef(false);
+  useFrame(() => {
+    if (fired.current || !onFirstFrame) return;
+    fired.current = true;
+    onFirstFrame();
+  });
+  return null;
+}
+
+export function SkyScene({
+  sky,
+  coords,
+  descent,
+  quality,
+  onContextLost,
+  onFirstFrame,
+}: SkySceneProps) {
+  return (
+    <Canvas
+      // Decorative: hidden from assistive tech entirely, since every
+      // meaningful piece of content lives in the DOM above it.
+      aria-hidden="true"
+      dpr={[1, 1.5]}
+      gl={{
+        antialias: quality === "reduced" ? false : true,
+        powerPreference: "high-performance",
+        alpha: true,
+        stencil: false,
+        depth: true,
+      }}
+      camera={{
+        fov: 55,
+        near: 0.1,
+        far: 9000,
+        position: [0, START_ALTITUDE, -120],
+      }}
+      onCreated={({ gl }) => {
+        gl.domElement.addEventListener(
+          "webglcontextlost",
+          (e) => {
+            e.preventDefault();
+            onContextLost();
+          },
+          false,
+        );
+      }}
+      frameloop={quality === "reduced" ? "demand" : "always"}
+    >
+      <SceneContents
+        sky={sky}
+        coords={coords}
+        descent={descent}
+        quality={quality}
+      />
+      <FirstFrameSignal onFirstFrame={onFirstFrame} />
+
+      {/* Bloom is the only postprocessing pass. It is also the most expensive
+          thing in the scene, so it is the first thing dropped when quality
+          degrades. */}
+      {quality === "full" && (
+        <EffectComposer enableNormalPass={false}>
+          <Bloom
+            intensity={sky.isDark ? 0.9 : 0.45}
+            luminanceThreshold={sky.isDark ? 0.25 : 0.72}
+            luminanceSmoothing={0.3}
+            mipmapBlur
+          />
+        </EffectComposer>
+      )}
+    </Canvas>
+  );
+}
+
+export { SKY_RADIUS, START_ALTITUDE, EYE_LEVEL };

@@ -78,8 +78,9 @@ export function moonPosition(
   timezoneOffsetHours?: number,
 ): SolarPosition {
   const jd = toJulianDay(date);
-  const t = julianCentury(jd);
 
+  // Days since the J2000.0 epoch, used directly rather than via Julian
+  // centuries — this series is linear in days, not in centuries.
   const l0 = 218.316 + 13.176396 * (jd - 2451545);
   const m = 134.963 + 13.064993 * (jd - 2451545);
   const f = 93.272 + 13.229350 * (jd - 2451545);

@@ -33,7 +33,6 @@ if (typeof window !== "undefined") {
     }
     // @ts-expect-error test shim
     window.IntersectionObserver = IO;
-    // @ts-expect-error test shim
     globalThis.IntersectionObserver = IO;
   }
 
@@ -45,7 +44,6 @@ if (typeof window !== "undefined") {
     }
     // @ts-expect-error test shim
     window.ResizeObserver = RO;
-    // @ts-expect-error test shim
     globalThis.ResizeObserver = RO;
   }
 }
