@@ -19,7 +19,7 @@ Everything below was run, not assumed.
 |---|---|---|
 | Types | `npm run typecheck` | clean |
 | Lint | `npm run lint` | clean |
-| Tests | `npm test` | 87 passing (6 files) |
+| Tests | `npm test` | 94 passing (7 files) |
 | Coverage | `npm run test:coverage` | 87.3% stmt / 77.5% branch / 90.2% line, gate 85/75/85 |
 | Build | `npm run build` | succeeds, all routes static |
 
@@ -101,7 +101,7 @@ These were open questions during planning, resolved as noted.
 | 3D scope | Sky and terrain only. No 3D project cards or rig showcase — materially larger performance surface. |
 | Sky coordinates | Nairobi by default; optional "Show my sky" geolocation button. No permission prompt on load. |
 | Start altitude | 260 units. |
-| Asset downloads | **None used.** Terrain and props are procedural + instanced. The planned CC0 sources (Poly Haven, Kenney) remain available if procedural results look thin. |
+| Asset downloads | **CC0 textures used.** Poly Haven `coast_sand_01` and `asphalt_02`, fetched by `scripts/fetch-textures.mjs`, converted to WebP, 1.94 MB for 6 PBR maps. Sources and licences in `public/assets/CREDITS.md`. Models remain procedural and instanced. |
 
 ---
 
@@ -192,6 +192,7 @@ Still open:
 - [ ] **Performance profiling.** The budget is written into the code (`dpr` clamped to 1.5, 30fps, bloom only, pause when idle/hidden) but has never been measured on real hardware. Lighthouse not run.
 - [ ] **Mobile check.** Touch devices, safe-area insets, and the `100svh` hero untested.
 - [ ] **Procedural terrain quality.** Beach and street are generated, not art-directed. May need tuning or real CC0 assets.
+- [ ] **Visual tuning after eyes-on review.** The materials, sea, wet-sand band and typography are in, but nothing has been seen in a browser. Expect a round of adjustment.
 - [ ] **Browser smoke test.** The R3F scene cannot run under jsdom, so `SkyScene`, `Celestial`, `StarField` and `Terrain` are excluded from coverage rather than tested. Their pure logic is covered in `src/lib`; the rendering itself has only been verified by `next build` succeeding. A Playwright smoke test would close this honestly.
 
 ### 5.5 Note on coverage exclusions
@@ -204,7 +205,57 @@ mistaken for coverage.
 
 ---
 
-## 6. Ordering
+## 6. Visual pass — what was done
+
+The "make it look the best it could" pass, commit `aba3031`.
+
+### Materials
+- CC0 PBR texture sets replace flat colour. `scripts/fetch-textures.mjs`
+  fetches from Poly Haven and converts to WebP.
+- **Diffuse maps are sRGB; normal and roughness maps stay linear.** This
+  split is the detail that makes or breaks it — getting it wrong washes the
+  ground out or over-contrasts it.
+- **Per-map quality:** 82 diffuse, 90 normal, 88 roughness. Normal maps are
+  near-binary and artefact visibly as lighting seams; roughness bands below
+  ~88 on large surfaces.
+- 1.94 MB for 6 maps. An earlier draft fetched four material sets at 3.42 MB
+  and two were never referenced by the scene — removed rather than carried.
+
+### Scene
+- Sea plane with two crossing wave sets, tinted by sun altitude so golden
+  hour gets its glint.
+- Wet-sand band at the waterline. Wet sand darkens and drops in roughness;
+  that strip is most of what makes a beach read as a shoreline rather than a
+  desert.
+- Ground roughness interpolates with daylight — wet asphalt at night is
+  glossier than dry asphalt by day.
+
+### Project cards
+- Deterministic generated artwork per repo, seeded from the repo name. Inline
+  SVG: no network request, sharp at any density, stable across builds.
+- Gradient ids namespaced with `useId`, not a module counter. A counter gives
+  different ids on server and client depending on render order, which is a
+  hydration mismatch — caught by a test, not by review.
+
+### Motion and type
+- IntersectionObserver reveals on the existing duration scale. One motion,
+  one easing, restrained: the descent is the centrepiece and too many
+  animations read as busy rather than considered.
+- Reduced-motion read as lazy initial state rather than inside an effect, so
+  those users never see the hidden frame at all.
+- Tracking scales inversely with size: −0.02em at body, −0.045em at hero.
+  Optical sizing enabled on the variable fonts.
+- Tabular numerals wherever values sit in columns.
+
+### What was deliberately not done
+- **The scrim problem was left alone.** The plan flagged that 3D behind every
+  word risks looking busy rather than premium, and suggested pulling the scene
+  back to just the hero and footer if it fights the content. That is a
+  judgement call that needs eyes on it, not a change to make blind.
+
+---
+
+## 7. Ordering
 
 ```
 Phase 0  security            ✓ DONE  (needs force-push + token revocation)
