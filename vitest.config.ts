@@ -23,17 +23,14 @@ export default defineConfig({
         "src/**/*.test.tsx",
         "src/data/repos.generated.ts",
         // The R3F scene cannot be unit tested under jsdom: there is no WebGL
-        // context, so mounting it either throws or renders nothing worth
-        // asserting. These are exercised by the browser smoke test instead,
-        // and their pure logic (solar maths, gradients, contrast, scroll
-        // easing) is factored out into src/lib and covered there.
+        // context, so mounting these either throws or renders nothing worth
+        // asserting. Their *logic* is factored out into src/lib and covered
+        // there — solar maths, sky gradients, contrast, scroll easing — and
+        // the camera invariants are pinned by src/components/sky/camera.test.ts.
         //
-        // Excluding them is not the same as them being tested — see the
-        // "Browser smoke test" section of plan.md.
-        "src/components/sky/SkyScene.tsx",
-        "src/components/sky/Celestial.tsx",
-        "src/components/sky/StarField.tsx",
-        "src/components/sky/Terrain.tsx",
+        // This is the largest untested surface in the codebase. "Excluded" is
+        // not "tested" — see the browser smoke test item in plan.md.
+        "src/components/sky/**/*.tsx",
       ],
       thresholds: {
         lines: 85,

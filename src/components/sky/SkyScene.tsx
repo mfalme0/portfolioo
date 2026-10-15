@@ -5,10 +5,12 @@ import * as THREE from "three";
 
 import { Celestial } from "./Celestial";
 import { StarField } from "./StarField";
+import { SkyDome } from "./SkyDome";
+import { Pines, BeachGrass } from "./Flora";
 import { SceneryProps, StreetLights, Terrain, GROUND_RADIUS } from "./Terrain";
 import { Sea, WetSand } from "./Water";
 import { directionFromAltitudeAzimuth, kelvinToRgb, type Coordinates } from "@/lib/solar";
-import { moonPosition } from "@/lib/moon";
+import { moonPosition, moonIllumination } from "@/lib/moon";
 import type { SkyState } from "@/lib/sky";
 
 /**
@@ -26,8 +28,20 @@ import type { SkyState } from "@/lib/sky";
 const SKY_RADIUS = 4000;
 
 /** Camera altitude range. 0 = high above, 1 = eye level. */
-const START_ALTITUDE = 260;
+const START_ALTITUDE = 190;
 const EYE_LEVEL = 1.7;
+
+/**
+ * Camera pitch, in radians. Negative looks down.
+ *
+ * START is deliberately shallow (-14 degrees) rather than steep: the horizon
+ * and the sky must be visible from the first frame, or the descent has
+ * nothing to descend *from*. At eye level pitch is near zero so the horizon
+ * settles exactly on the eye line, which is what makes the landing read as
+ * landing.
+ */
+const START_PITCH = -0.25;
+const END_PITCH = -0.02;
 
 /**
  * Camera rig.
@@ -41,46 +55,57 @@ const EYE_LEVEL = 1.7;
  */
 function CameraRig({ descent }: { descent: number }) {
   const { camera } = useThree();
-  const current = useRef(START_ALTITUDE);
-  const lookAt = useRef(new THREE.Vector3(0, 0, 0));
+  const currentAltitude = useRef(START_ALTITUDE);
+  const currentPitch = useRef(START_PITCH);
 
   useFrame((_, delta) => {
     // Frame-rate independent damping. A raw lerp factor would make the feel
     // depend on whether the device was hitting 30 or 60 fps.
     const damping = 1 - Math.pow(0.0015, Math.min(delta, 0.1));
 
+    // --- Altitude -------------------------------------------------------
     const targetAltitude = THREE.MathUtils.lerp(
       START_ALTITUDE,
       EYE_LEVEL,
       descent,
     );
-    current.current = THREE.MathUtils.lerp(
-      current.current,
+    currentAltitude.current = THREE.MathUtils.lerp(
+      currentAltitude.current,
       targetAltitude,
       damping,
     );
 
-    const altitude = current.current;
+    // --- Pitch ----------------------------------------------------------
+    // Pitch is set directly, never composed with lookAt. The previous version
+    // called lookAt() and then added to rotation.x, which orients the camera
+    // twice — the result was unpredictable and read as a jumbled mess.
+    //
+    // The previous start pitch was also -1.15 rad (-77 degrees), which pointed
+    // the camera at the ground and meant the sky and the sun were never in
+    // frame at all. The horizon now stays visible from the first pixel.
+    const targetPitch = THREE.MathUtils.lerp(START_PITCH, END_PITCH, descent);
+    currentPitch.current = THREE.MathUtils.lerp(
+      currentPitch.current,
+      targetPitch,
+      damping,
+    );
 
-    // Drift forward slightly as we descend so the world reveals itself.
-    const z = THREE.MathUtils.lerp(-120, 40, descent);
+    // --- Position -------------------------------------------------------
+    // Pull back and rise as we ascend so the world stays framed. Starting at
+    // the origin with the camera 260 units up pointed at the ground gave an
+    // empty frame.
+    const altitude = currentAltitude.current;
+    const distance = THREE.MathUtils.lerp(180, 26, descent);
 
-    camera.position.set(0, altitude, z);
+    camera.position.set(0, altitude, -distance);
+    camera.rotation.set(currentPitch.current, 0, 0, "YXZ");
 
-    // Above the horizon we look down at the world; at eye level we look
-    // straight ahead. The interpolation is eased so the transition is smooth
-    // rather than a visible pivot.
-    const pitch = THREE.MathUtils.lerp(-1.15, -0.02, descent);
-    lookAt.current.set(0, 0, z + 60);
-    camera.lookAt(lookAt.current);
-    camera.rotation.x += pitch;
-    camera.rotation.z = 0;
-
-    // Far plane tracks altitude so depth precision is not wasted on empty
-    // sky at the start, and does not clip the ground at the footer.
-    const far = THREE.MathUtils.lerp(9000, 2600, descent);
+    // --- Frustum --------------------------------------------------------
+    // Far plane tracks altitude so depth precision is not wasted on empty sky
+    // at the start, and does not clip the ground at the footer.
+    const far = THREE.MathUtils.lerp(9000, 4200, descent);
     const cam = camera as THREE.PerspectiveCamera;
-    if (cam.far !== far) {
+    if (Math.abs(cam.far - far) > 1) {
       cam.far = far;
       cam.updateProjectionMatrix();
     }
@@ -221,15 +246,40 @@ function SceneContents({
     }
   });
 
-  const daylight = THREE.MathUtils.clamp(
-    (sky.altitude + 6) / 26,
-    0,
-    1,
+  const daylight = THREE.MathUtils.clamp((sky.altitude + 6) / 26, 0, 1);
+
+  // Unit vector toward the sun, for the dome's glow. Computed outside the
+  // render loop because it only changes when the sky does.
+  const sunDirection = useMemo(() => {
+    const d = directionFromAltitudeAzimuth(sky.altitude, sky.azimuth);
+    return new THREE.Vector3(d.x, d.y, d.z);
+  }, [sky.altitude, sky.azimuth]);
+
+  const moon = useMemo(
+    () => moonPosition(new Date(), coords),
+    [coords],
   );
 
   return (
     <>
       <CameraRig descent={descent} />
+
+      {/*
+        The dome renders first and fills every pixel not covered by
+        geometry. This is what removed the "jumbled" look: previously the CSS
+        gradient showed through the transparent canvas *and* the scene applied
+        its own fog, so two skies disagreed.
+      */}
+      <SkyDome
+        zenith={sky.zenith}
+        mid={sky.mid}
+        horizon={sky.horizon}
+        ground={sky.ground}
+        sunDirection={sky.altitude > -1.5 ? sunDirection : null}
+        sunIntensity={sky.isDark ? 0 : THREE.MathUtils.clamp(sky.altitude / 12, 0, 1)}
+        radius={SKY_RADIUS * 0.95}
+      />
+
       <Atmosphere sky={sky} descent={descent} quality={quality} />
       <SolarLighting sky={sky} coords={coords} quality={quality} />
 
@@ -240,27 +290,28 @@ function SceneContents({
         temperature={THREE.MathUtils.clamp((sky.temperature - 1900) / 4600, 0, 1)}
         intensity={sky.intensity}
         isMoon={false}
-        skyRadius={SKY_RADIUS}
+        skyRadius={SKY_RADIUS * 0.8}
       />
 
-      {sky.isDark && (
+      {sky.isDark && moon.altitude > -1.5 && (
         <Celestial
-          altitude={moonPosition(new Date(), coords).altitude}
-          azimuth={moonPosition(new Date(), coords).azimuth}
+          altitude={moon.altitude}
+          azimuth={moon.azimuth}
           angularRadius={0.26}
           temperature={0.5}
           intensity={1}
           isMoon
-          skyRadius={SKY_RADIUS}
+          illumination={moonIllumination(new Date())}
+          skyRadius={SKY_RADIUS * 0.8}
         />
       )}
 
-      <StarField opacity={sky.starOpacity} radius={SKY_RADIUS} density={starDensity} />
+      <StarField opacity={sky.starOpacity} radius={SKY_RADIUS * 0.9} density={starDensity} />
 
       <Terrain mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
 
-      {/* Water only exists at the beach. Rendering it at night would be
-          visible through the street geometry as the mood cross-fades. */}
+      {/* Water and flora only exist at the beach. Rendering them at night
+          would show through the street geometry as the mood cross-fades. */}
       {sky.mood === "beach" && (
         <>
           <Sea
@@ -274,6 +325,8 @@ function SceneContents({
             daylight={daylight}
             radius={GROUND_RADIUS}
           />
+          <Pines mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
+          <BeachGrass mood={sky.mood} daylight={daylight} radius={GROUND_RADIUS} />
         </>
       )}
 
@@ -327,10 +380,15 @@ export function SkyScene({
         depth: true,
       }}
       camera={{
-        fov: 55,
+        // 65 degrees vertical. Wider than a natural lens so a reasonably high
+        // sun stays in frame, but short of the 80-90 where barrel distortion
+        // makes the scene read as a fisheye. When the sun is above the frame
+        // the dome's glow carries its presence instead, which is both honest
+        // and prettier than bending the projection.
+        fov: 65,
         near: 0.1,
         far: 9000,
-        position: [0, START_ALTITUDE, -120],
+        position: [0, START_ALTITUDE, -180],
       }}
       onCreated={({ gl }) => {
         gl.domElement.addEventListener(

@@ -54,15 +54,23 @@ export function SkyBackdrop() {
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* Layer 1 — CSS sky. Always on. */}
-      <div className="sky-gradient absolute inset-0" />
+      {/*
+        Layer 1 — CSS sky.
+
+        This is the fallback and the first-paint layer: it renders before the
+        canvas mounts, so there is never a blank frame. Once the 3D scene has
+        drawn its own sky dome it is hidden, because two skies disagreeing
+        (this gradient versus the scene's own fog and dome) is what made the
+        scene look like a jumbled mess.
+      */}
+      <div
+        className="sky-gradient absolute inset-0 transition-opacity duration-slow ease-sky"
+        style={{ opacity: sceneReady ? 0 : 1 }}
+      />
 
       {/* Layer 2 — the descent. */}
       {sceneEnabled && (
-        <div
-          className="absolute inset-0 transition-opacity duration-slow ease-sky"
-          style={{ opacity: sceneReady ? 1 : 0 }}
-        >
+        <div className="absolute inset-0">
           <Suspense fallback={null}>
             <SkyScene
               sky={state as SkyState}

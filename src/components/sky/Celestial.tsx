@@ -58,13 +58,6 @@ export function Celestial({
     [altitude, azimuth, skyRadius],
   );
 
-  // Angular radius -> world radius at `skyRadius`. `sin` is the correct
-  // spherical relation rather than a flat tangent approximation.
-  const worldRadius = useMemo(
-    () => skyRadius * Math.sin(THREE.MathUtils.degToRad(angularRadius)),
-    [skyRadius, angularRadius],
-  );
-
   // Sun colour runs from deep amber at the horizon to near-white at noon.
   // Moon is always cool — it is lit by the sun, but its albedo is low and it
   // reads blue to the eye at every altitude.
@@ -83,6 +76,28 @@ export function Celestial({
   // disc under the ground plane reads as a bug.
   const visible = altitude > -1.5;
   const opacity = isMoon ? 0.35 + illumination * 0.65 : 1;
+
+  /*
+   * Visual scale exaggeration.
+   *
+   * The true angular radius of the sun is 0.2665 degrees — about half a
+   * percent of screen height, which is astronomically accurate and completely
+   * invisible as a design element. The moon has the same problem.
+   *
+   * Scaled up by roughly 6x for the sun and 5x for the moon, both become
+   * legible discs with a real presence. This is a deliberate departure from
+   * physical accuracy: nobody opens a portfolio to check angular diameter,
+   * and a sky with no visible sun does not read as a sky at all.
+   *
+   * The ratio between sun and moon is preserved so they still read as the
+   * same class of object.
+   */
+  const visualRadius = angularRadius * (isMoon ? 5 : 6);
+
+  const worldRadius = useMemo(
+    () => skyRadius * Math.sin(THREE.MathUtils.degToRad(visualRadius)),
+    [skyRadius, visualRadius],
+  );
 
   useFrame(() => {
     if (!group.current) return;
@@ -120,7 +135,7 @@ export function Celestial({
           toneMapped={false}
           uniforms={{
             uColor: { value: color },
-            uOpacity: { value: (isMoon ? 0.28 : 0.5) * opacity },
+            uOpacity: { value: (isMoon ? 0.34 : 0.62) * opacity },
           }}
           vertexShader={`
             varying vec2 vUv;
@@ -135,9 +150,16 @@ export function Celestial({
             varying vec2 vUv;
             void main() {
               float d = distance(vUv, vec2(0.5)) * 2.0;
-              // Smooth falloff, fully transparent by the edge of the quad.
-              float a = pow(max(0.0, 1.0 - d), 3.0);
-              if (a < 0.001) discard;
+
+              // Two-lobe falloff. A single power() gives a soft blob that reads
+              // as fog; the tight core plus the wide bloom is what makes it
+              // read as a light source with atmosphere around it.
+              float core = pow(max(0.0, 1.0 - d), 2.2);
+              float bloom = pow(max(0.0, 1.0 - d), 0.9) * 0.34;
+
+              float a = core + bloom;
+              if (a < 0.004) discard;
+
               gl_FragColor = vec4(uColor, a * uOpacity);
             }
           `}
