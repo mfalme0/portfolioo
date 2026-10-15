@@ -19,7 +19,8 @@ Everything below was run, not assumed.
 |---|---|---|
 | Types | `npm run typecheck` | clean |
 | Lint | `npm run lint` | clean |
-| Tests | `npm test` | 29 passing (2 files) |
+| Tests | `npm test` | 87 passing (6 files) |
+| Coverage | `npm run test:coverage` | 87.3% stmt / 77.5% branch / 90.2% line, gate 85/75/85 |
 | Build | `npm run build` | succeeds, all routes static |
 
 Routes generated: `/`, `/icon.svg`, `/manifest.webmanifest`,
@@ -121,6 +122,30 @@ These were open questions during planning, resolved as noted.
 | **20MB of images** | `Images/` held a 7.6MB PNG among others. Deleted entirely; nothing in the new site references them. |
 | **`bg-opacity-*`** | Invalid Tailwind v4 syntax throughout. Gone with the rewrite. |
 
+### Contrast bugs found by the test suite
+
+Three more accessibility defects, all in code that *looked* correct and all
+found only by measuring contrast across every hour of the year rather than
+eyeballing a few:
+
+| Bug | Detail |
+|---|---|
+| **AA failure at golden hour** | Text hit 4.35:1 against the mid sky. Root cause: the dark foreground was a lifted near-black (`#08090C`) rather than true black. White clears AA when background luminance ≤ 0.183; black clears it at ≥ 0.175 — those bands only overlap for a *true* black. Worst case is now 4.59:1. |
+| **Muted text at 1.07:1** | The muted tone was chosen by eye, landing a near-black grey on a near-black sky. Now scored against the actual background. |
+| **One foreground for two skies** | At golden hour the mid sky is dark (wants white text) and the horizon is bright amber (wants black). A single value gave 2.63:1. Added a separate `--sky-fg-horizon`. |
+| **Pre-paint script drift** | The inline script duplicates the solar maths and had kept the broken foreground, so the first paint would have regressed even after the library was fixed. |
+
+### Two bugs the tests caught that review would not have
+
+Solar noon was off by 26 minutes and the sun appeared to freeze at −83° for a
+full day. Both were caught by comparing against published Nairobi almanac
+values, not by reading the code. Worth remembering that fixture-based
+validation is the only reason these were found.
+
+A third: a `matchMedia` mock in the reduced-motion test leaked into every
+later test in that file, silently disabling the render gate. Restoring mocks
+in `afterEach` is the whole fix.
+
 ### Two bugs the tests caught that review would not have
 
 Solar noon was off by 26 minutes and the sun appeared to freeze at −83° for a
@@ -154,13 +179,28 @@ validation is the only reason these were found.
 
 ### 5.4 Quality gaps
 
-- [ ] **Component tests.** Only `solar.ts` and `moon.ts` are tested. `SkyProvider`, `Hero`, `RepoGrid`, `Header` and the accessibility of the rendered page are untested. Coverage gate is set at 70% and will currently fail.
-- [ ] **jest-axe is installed but unused.** Run `axe()` against rendered routes.
-- [ ] **GitHub Actions.** No CI. Should run lint → typecheck → test → build, plus a `gitleaks` step so committed secrets cannot recur.
-- [ ] **`npm audit`.** 5 high-severity findings remain, all dev-toolchain only (`braces` → `fast-glob` → `micromatch` inside the ESLint plugin). npm's suggested fix is a downgrade to Next 14. Not worth it; they never reach production. Worth a note in CI to avoid a future panic.
-- [ ] **Performance profiling.** The performance budget is written into the code (`dpr` clamped to 1.5, 30fps, bloom only, pause when idle/hidden) but has not been measured on real hardware. Lighthouse not yet run.
+Closed in commit `7e3eaf9`:
+
+- [x] **Component tests** — `Hero`, `RepoGrid`, `Header`, `Contact`, `Footer`, `FeaturedWork`, `Stack`, `Contributions`, plus both hooks. 87 tests across 6 files.
+- [x] **jest-axe** — run against rendered components via `src/test-utils/axe.ts`. Guards the duplicate-`h1`, unlabelled-control and dead-link regressions.
+- [x] **GitHub Actions** — `.github/workflows/ci.yml`: lint → typecheck → coverage → build, with a `gitleaks` step scanning full history (`fetch-depth: 0`).
+- [x] **Coverage gate** — set to 85/80/75/85 against actual 87.3/84.8/77.5/90.2.
+
+Still open:
+
+- [ ] **`npm audit`.** 5 high-severity findings, all dev-toolchain only (`braces` → `fast-glob` → `micromatch` inside the ESLint plugin). npm's suggested fix is a downgrade to Next 14, which is worse. They never reach production. Noted in CI to avoid a future panic.
+- [ ] **Performance profiling.** The budget is written into the code (`dpr` clamped to 1.5, 30fps, bloom only, pause when idle/hidden) but has never been measured on real hardware. Lighthouse not run.
 - [ ] **Mobile check.** Touch devices, safe-area insets, and the `100svh` hero untested.
 - [ ] **Procedural terrain quality.** Beach and street are generated, not art-directed. May need tuning or real CC0 assets.
+- [ ] **Browser smoke test.** The R3F scene cannot run under jsdom, so `SkyScene`, `Celestial`, `StarField` and `Terrain` are excluded from coverage rather than tested. Their pure logic is covered in `src/lib`; the rendering itself has only been verified by `next build` succeeding. A Playwright smoke test would close this honestly.
+
+### 5.5 Note on coverage exclusions
+
+The four 3D component files are excluded from the coverage denominator
+because jsdom has no WebGL context. This is a real gap, not a solved one —
+they are the largest untested surface in the codebase, and "excluded" is not
+"tested". The exclusion is commented in `vitest.config.ts` so it is not
+mistaken for coverage.
 
 ---
 
@@ -176,9 +216,12 @@ Phase 2  design tokens       ✓ DONE
 Phase 3  architecture        ✓ DONE
 Phase 4  project data        ✓ DONE
 Phase 5  sections            ✓ DONE  (core; gear/favourites deferred)
-Phase 6  ship quality        ~ PARTIAL — metadata, sitemap, robots, manifest,
-                              OG image, icon all done. CI and gitleaks not.
+Phase 6  ship quality        ✓ DONE  — metadata, sitemap, robots, manifest,
+                              OG image, icon, CI workflow, gitleaks, 87 tests
 ```
 
 Phases 1.5, 1.6 and 1.7 were built as one unit against a single canvas. They
 share the solar computation and must not be split apart later.
+
+The only outstanding items are the ones that need a human or a real browser:
+force-push, token revocation, hero copy, and visual/performance verification.
