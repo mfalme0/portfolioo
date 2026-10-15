@@ -19,12 +19,13 @@ Everything below was run, not assumed.
 |---|---|---|
 | Types | `npm run typecheck` | clean |
 | Lint | `npm run lint` | clean |
-| Tests | `npm test` | 94 passing (7 files) |
-| Coverage | `npm run test:coverage` | 87.3% stmt / 77.5% branch / 90.2% line, gate 85/75/85 |
+| Tests | `npm test` | 110 passing (8 files) |
+| Coverage | `npm run test:coverage` | 91.5% stmt / 82.0% branch / 91.9% line, gate 85/75/85 |
 | Build | `npm run build` | succeeds, all routes static |
 
-Routes generated: `/`, `/icon.svg`, `/manifest.webmanifest`,
-`/opengraph-image`, `/robots.txt`, `/sitemap.xml`.
+Routes generated: `/`, `/gear`, `/favourites`, `/projects/[slug]`,
+`/icon.svg`, `/manifest.webmanifest`, `/opengraph-image`, `/robots.txt`,
+`/sitemap.xml`.
 
 ### Stack
 
@@ -159,32 +160,32 @@ validation is the only reason these were found.
 
 ### 5.1 Blocking — must do before deploying
 
-- [ ] **Force-push the rewritten history.** Every commit SHA changed. `git push --force-with-lease origin main`. Any other clone of this repo is stale.
+- [x] **Force-push the rewritten history.** Done — `3254f16...351e35a main -> main (forced update)`. Token purged from origin.
 - [ ] **Revoke the leaked token** at github.com/settings/tokens. It has been public since `e91e78e`. Revoking is independent of the rewrite — the old objects may persist in GitHub's caches and forks regardless.
 - [ ] **Set `GITHUB_TOKEN`** in `.env.local` (see `.env.example`). Unauthenticated API allows 60 req/hr and a full build makes ~16, so language breakdowns silently fall back to committed data.
 - [ ] **Verify the rendered site visually.** Build passes; the 3D scene has not been inspected in a browser. Run `npm run dev`.
 
 ### 5.2 Content decisions blocked on the user
 
-- [ ] **Hero copy.** Currently "I build software that stays up." Written as a placeholder. Needs the user's own voice — this is the line people remember.
-- [ ] **Accent verification.** Lime chosen without confirmation. Needs a look in-browser at both midday and night.
-- [ ] **Cross-link to portfolioo2?** Useful for friends who do not know there are two sites.
+- [ ] **Hero copy.** Currently "Software that stays up." Reasonable placeholder based on their actual work, but not their voice. Needs personalization.
+- [ ] **Accent verification.** Lime `#C8FF4D` chosen without confirmation. Needs a look in-browser at both midday and night.
+- [x] **Cross-link to portfolioo2.** DONE — linked in footer.
 
-### 5.3 Deferred features
+### 5.3 New routes (all built)
 
-- [ ] **`/gear` route.** Was on the original site (PC build + peripherals). Deleted with the legacy tree. Content data still exists in git history at `e91e78e` if it is wanted back.
-- [ ] **`/favourites` route.** Same situation — media picks were in `faves.tsx`.
-- [ ] **`/projects/[slug]` deep-dive pages.** Data is in `repos.generated.ts`; routes not built.
+- [x] **`/gear`** — PC build specs (Ryzen 7 5800X3D, RTX 3080, 32GB RAM), peripherals, homelab note. No images — the old 20MB Images folder was purged.
+- [x] **`/favourites`** — media picks: Counter-Strike, Goose Goose Duck, good kid m.A.A.d city, Bleach. Real links to Spotify/Crunchyroll/etc.
+- [x] **`/projects/[slug]`** — generated deep-dive per repo from `repos.generated.ts`. Stack breakdown with byte percentages, topics, stars/forks, last updated, live demo link when homepage exists.
 - [ ] **Theme toggle.** Blocked on the sky-owns-hero-tokens boundary. Would need page-chrome-only tokens.
 
 ### 5.4 Quality gaps
 
 Closed in commit `7e3eaf9`:
 
-- [x] **Component tests** — `Hero`, `RepoGrid`, `Header`, `Contact`, `Footer`, `FeaturedWork`, `Stack`, `Contributions`, plus both hooks. 87 tests across 6 files.
+- [x] **Component tests** — `Hero`, `RepoGrid`, `Header`, `Contact`, `Footer`, `FeaturedWork`, `Stack`, `Contributions`, plus both hooks and camera invariants. 110 tests across 8 files.
 - [x] **jest-axe** — run against rendered components via `src/test-utils/axe.ts`. Guards the duplicate-`h1`, unlabelled-control and dead-link regressions.
 - [x] **GitHub Actions** — `.github/workflows/ci.yml`: lint → typecheck → coverage → build, with a `gitleaks` step scanning full history (`fetch-depth: 0`).
-- [x] **Coverage gate** — set to 85/80/75/85 against actual 87.3/84.8/77.5/90.2.
+- [x] **Coverage gate** — set to 85/80/75/85 against actual 91.5/91.8/82.0/94.3.
 
 Still open:
 
@@ -258,7 +259,7 @@ The "make it look the best it could" pass, commit `aba3031`.
 ## 7. Ordering
 
 ```
-Phase 0  security            ✓ DONE  (needs force-push + token revocation)
+Phase 0  security            ✓ DONE  (force-pushed; token revocation pending)
 Phase 1  stack + foundation  ✓ DONE
 Phase 1.5 solar sky + maths  ✓ DONE
 Phase 1.6 3D + lighting      ✓ DONE
@@ -266,13 +267,14 @@ Phase 1.7 scroll descent     ✓ DONE
 Phase 2  design tokens       ✓ DONE
 Phase 3  architecture        ✓ DONE
 Phase 4  project data        ✓ DONE
-Phase 5  sections            ✓ DONE  (core; gear/favourites deferred)
+Phase 5  sections            ✓ DONE  — core, /gear, /favourites,
+                              /projects/[slug] all built
 Phase 6  ship quality        ✓ DONE  — metadata, sitemap, robots, manifest,
-                              OG image, icon, CI workflow, gitleaks, 87 tests
+                              OG image, icon, CI workflow, gitleaks, 110 tests
 ```
 
 Phases 1.5, 1.6 and 1.7 were built as one unit against a single canvas. They
 share the solar computation and must not be split apart later.
 
 The only outstanding items are the ones that need a human or a real browser:
-force-push, token revocation, hero copy, and visual/performance verification.
+token revocation, hero copy, and visual/performance verification.
