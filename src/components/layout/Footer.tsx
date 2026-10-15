@@ -10,15 +10,26 @@ export function Footer() {
           © {year} Joseph Gitau. Built in Nairobi.
         </p>
 
-        <a
-          href="https://github.com/mfalme0"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-accent"
-        >
-          <GitHubMark size={15} aria-hidden="true" />
-          @mfalme0
-        </a>
+        <div className="flex items-center gap-4">
+          <a
+            href="https://portfolioo2.mfalme.runs-on.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-accent"
+          >
+            <span className="text-accent" aria-hidden="true">→</span>
+            Main portfolio
+          </a>
+          <a
+            href="https://github.com/mfalme0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-accent"
+          >
+            <GitHubMark size={15} aria-hidden="true" />
+            @mfalme0
+          </a>
+        </div>
       </div>
     </footer>
   );

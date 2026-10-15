@@ -80,12 +80,15 @@ export function Hero() {
           <span className="sky-fg">
             {greetingFor(new Date().getHours())}.
           </span>{" "}
-          <span className="text-gradient-sky">I build software that stays up.</span>
+          <span className="text-gradient-sky">
+            Software that stays up.
+          </span>
         </h1>
 
         <p className="sky-fg-muted mt-8 max-w-2xl text-balance text-lg leading-relaxed">
           Transaction reliability in Rust. AI SRE tooling for homelabs. A
           self-hosted resume pipeline that refuses to fabricate a single fact.
+          Built in Nairobi.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
